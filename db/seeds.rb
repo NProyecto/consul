@@ -36,19 +36,19 @@ Setting["email_domain_for_officials"] = ''
 Setting['per_page_code'] =  ''
 
 # Social settings
-Setting["twitter_handle"] = nil
-Setting["facebook_handle"] = nil
-Setting["youtube_handle"] = nil
-Setting["blog_url"] = nil
+Setting["twitter_handle"] = "https://twitter.com/abriendomadrid"
+Setting["facebook_handle"] = "https://www.facebook.com/Abriendo-Madrid-1475577616080350/"
+Setting["youtube_handle"] = "https://www.youtube.com/channel/UCFmaChI9quIY7lwHplnacfg"
+Setting["blog_url"] = "/blog"
 
 # Public-facing URL of the app.
-Setting["url"] = "http://example.com"
+Setting["url"] = "http://decide.madrid.es"
 
 # Consul installation's organization name
-Setting["org_name"] = "Consul"
+Setting["org_name"] = "Madrid Participación"
 
 # Consul installation place name (City, Country...)
-Setting["place_name"] = "Consul-land"
+Setting["place_name"] = "Madrid"
 
 # Feature flags
 Setting['feature.debates'] = true
