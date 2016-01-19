@@ -36,9 +36,9 @@ Setting["email_domain_for_officials"] = ''
 Setting['per_page_code'] =  ''
 
 # Social settings
-Setting["twitter_handle"] = "https://twitter.com/abriendomadrid"
-Setting["facebook_handle"] = "https://www.facebook.com/Abriendo-Madrid-1475577616080350/"
-Setting["youtube_handle"] = "https://www.youtube.com/channel/UCFmaChI9quIY7lwHplnacfg"
+Setting["twitter_handle"] = "abriendomadrid"
+Setting["facebook_handle"] = "Abriendo-Madrid-1475577616080350"
+Setting["youtube_handle"] = "channel/UCFmaChI9quIY7lwHplnacfg"
 Setting["blog_url"] = "/blog"
 
 # Public-facing URL of the app.
