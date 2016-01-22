@@ -6,7 +6,7 @@ class ProposalsController < ApplicationController
   before_action :parse_advanced_search_terms, only: :index
   before_action :parse_tag_filter, only: :index
   before_action :set_search_order, only: :index
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :map_district]
 
   has_orders %w{hot_score confidence_score created_at relevance}, only: :index
   has_orders %w{most_voted newest oldest}, only: :show
@@ -35,7 +35,7 @@ class ProposalsController < ApplicationController
   private
 
     def proposal_params
-      params.require(:proposal).permit(:title, :question, :summary, :description, :external_url, :video_url, :responsible_name, :tag_list, :terms_of_service, :captcha, :captcha_key)
+      params.require(:proposal).permit(:title, :question, :summary, :description, :external_url, :video_url, :responsible_name, :tag_list, :terms_of_service, :captcha, :captcha_key, :geozone_id)
     end
 
     def resource_model

@@ -19,7 +19,7 @@ Rails.application.routes.draw do
 
   devise_scope :user do
     patch '/user/confirmation', to: 'users/confirmations#update', as: :update_user_confirmation
-
+    get '/user/registrations/check_username', to: 'users/registrations#check_username'
     get 'users/sign_up/success', to: 'users/registrations#success'
     get 'users/registrations/delete_form', to: 'users/registrations#delete_form'
     delete 'users/registrations', to: 'users/registrations#delete'
@@ -287,6 +287,11 @@ Rails.application.routes.draw do
 
   get "ordenanza-de-transparencia", to: "legislations#show", id: 1, as: :ordenanza_transparencia
 
+  get '/map', to: 'proposals#map_district'
+  get '/new_proposal_map/:district', to: 'proposals#new', as: 'new_proposal_map'
+  get '/mad', to: 'debates#map_district'
+  get '/new_debate_map/:district', to: 'debates#new', as: 'new_debate_map'
   get '/blog' => redirect("http://diario.madrid.es/participa/")
   resources :pages, path: '/', only: [:show]
+  
 end

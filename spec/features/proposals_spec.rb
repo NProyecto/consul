@@ -271,18 +271,22 @@ feature 'Proposals' do
     expect(page.html).to_not include "<script>alert('hey')</script>"
   end
 
-  context 'Tagging proposals' do
+  context 'Tagging proposals ' do
     let(:author) { create(:user) }
 
     background do
       login_as(author)
     end
 
-    scenario 'using featured tags', :js do
+    scenario 'using featured tags and geozone district', :js do
       ['Medio Ambiente', 'Ciencia'].each do |tag_name|
         create(:tag, :featured, name: tag_name)
       end
 
+      ['Distrito A', 'Distrito B'].each do |geozone_name|
+        create(:geozone, name: geozone_name)
+      end
+      
       visit new_proposal_path
 
       fill_in 'proposal_title', with: 'A test with enough characters'
@@ -298,10 +302,18 @@ feature 'Proposals' do
         find('.js-add-tag-link', text: tag_name).click
       end
 
+      ['Distrito A', 'Distrito B'].each do |geozone_name|
+        find('.js-add-tag-link', text: geozone_name).click
+      end
+
       click_button 'Create proposal'
 
       expect(page).to have_content 'Proposal created successfully.'
       ['Medio Ambiente', 'Ciencia'].each do |tag_name|
+        expect(page).to have_content tag_name
+      end
+      
+      ['Distrito A', 'Distrito B'].each do |tag_name|
         expect(page).to have_content tag_name
       end
     end
@@ -987,5 +999,28 @@ feature 'Proposals' do
 
     visit proposals_path
     expect(page).to have_content('User deleted')
+  end
+
+
+   scenario "Filtered by district"  do
+      tag1= ActsAsTaggableOn::Tag.create!(name:  "Centro", featured: true, kind: "district")
+      tag2= ActsAsTaggableOn::Tag.create!(name:  "Puente de Vallecas", featured: true, kind: "district")
+      tag3= ActsAsTaggableOn::Tag.create!(name:  "Retiro", featured: true, kind: "district")
+      tag4= ActsAsTaggableOn::Tag.create!(name:  "Salamanca", featured: true, kind: "district")
+
+      proposal1 = create(:proposal, tag_list: tag1)
+      proposal2 = create(:proposal, tag_list: tag2)
+      proposal3 = create(:proposal, tag_list: tag3)
+      proposal4 = create(:proposal, tag_list: tag4)    
+      visit proposals_path
+          
+      click_link "View map of districts"
+      within("#districtslist") do
+        click_link "Puente de Vallecas"
+      end    
+      within("#proposals") do
+        expect(page).to have_css('.proposal', count: 1)
+        expect(page).to have_content(proposal2.title)
+      end
   end
 end
