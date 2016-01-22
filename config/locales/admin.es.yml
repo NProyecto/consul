@@ -173,6 +173,10 @@ es:
       name:
         placeholder: Escribe el nombre del tema
       update: Actualizar Tema
+      message: 'El nombre de la etiqueta no puede estar en blanco'
+      message_find: 'La etiqueta ya existe'
+      kind:
+        placeholder: 'Tipo'
     users:
       index:
         filter: Filtro

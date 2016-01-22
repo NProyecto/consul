@@ -173,6 +173,10 @@ en:
       name:
         placeholder: Type the name of the topic
       update: Update Topic
+      message: 'The name of the topic is mandatory filling'
+      message_find: 'name of the topic already exists'
+      kind:
+        placeholder: 'Type'
     users:
       index:
         filter: Filter

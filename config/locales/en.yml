@@ -84,6 +84,8 @@ en:
     form:
       debate_text: Initial debate text
       debate_title: Debate title
+      tag_category_label: "Categorías"
+      tag_district_label: "Distritos"
       tags_instructions: Tag this debate. You can choose from our suggestions or enter your own.
       tags_label: Topics
       tags_placeholder: Enter the tags you would like to use, separated by commas (',')
@@ -288,7 +290,7 @@ en:
       start_proposal: Create a proposal
       title: Proposals
       map_district: "Districts of Madrid"
-      select_district: "Select your district"  
+      select_district: "Select your district"
     new:
       back_link: Go back
       form:
@@ -366,8 +368,8 @@ en:
       print_button: Print this info
     tags_cloud:
       tags: Trending
-      districts: "Districs"   
-      categorys: "Categories"  
+      districts: "Districs"
+      categorys: "Categories"
       map: "View map of districts"
     unflag: Unflag
   simple_captcha:
