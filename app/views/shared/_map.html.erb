@@ -1,10 +1,8 @@
-<%= javascript_include_tag "new_proposal_map" %>
+<div id="proposals" class="proposals-list small-12 medium-9 column">
 
-<div id="proposals" class="proposals-list small-12 medium-9 column">  
-  
   <h3><%= t("proposals.index.map_district") %></h3>
-</br>
-  <%= image_tag("Distritos_Madrid.jpg", :usemap => "#MadridMap") %>
+  </br>
+  <%= image_tag("Distritos_Madrid.jpg", usemap: "#MadridMap") %>
 
   <map name="MadridMap">
     <area shape="poly" coords="3,86,27,60,134,54,220,88,295,3,348,85,312,108,230,94,270,198,248,239,200,259,57,235,34,164" href="/proposals?tag=Fuencarral-El+Pardo" title="Fuencarral - El Pardo" alt="Fuencarral - El Pardo">
@@ -30,52 +28,37 @@
     <area shape="poly" coords="291,381,304,347,335,362,351,342,358,355,392,358,404,342,423,360,417,392,393,387,375,438,325,413,323,393" href="/proposals?tag=Vic%C3%A1lvaro" title="Vicálvaro" alt="Vicálvaro">
   </map>
 
- 
-<br>
+  <br>
 
-<div id="districtslist">
-  <% tag_cloud @district_cloud, %w[s m l] do |tag, css_class| %>
-    <%= link_to  tag.name, proposals_path(tag: tag.name) %>
-    <br>
-  <% end %>
- </div>
+  <div id="districtslist">
+    <% @geozones.each do |geozone| %>
+      <div><%= link_to geozone.name, proposals_path(search: geozone.name) %></div>
+    <% end %>
+  </div>
 
+  <h3><%= t("proposals.new.start_new_district") %></h3>
+  </br>
 
-<h3><%= t("proposals.new.start_new_district") %></h3>
-</br>
+  <div>
+    <%= form_for(@resource, url: new_url_path, method: :get ) do |f| %>
+      <div class="small-12 column">
+        <%= f.label :geozone_id,  t("spending_proposals.form.geozone") %>
+        <%= f.select :geozone_id, geozone_select_options,
+                     {include_blank: t("geozones.none"), label: false} %>
+      </div>
 
+      <div class="actions small-12 column">
+        <%= f.submit(class: "button radius", value: t("proposals.index.start_proposal")) %>
+      </div>
+    <% end %>
+  </div>
 
-
-<label for="district-selector-participation" ><%= t("proposals.index.select_district") %></label>
-
-<select   name="district-selector"
-          id="district-selector-participation">
-
-  <% @district_cloud.each do |distri| %>
-    <option  value='<%= distri.name %>'>
-         <%= distri.name%>
-       </option>
-  <% end %> 
-</select>
-
-</br>
-
-<div id="startproposalwithtag">
-<%= link_to t("proposals.index.start_proposal"), "javascript:", :onclick => "call_function();" , class: 'button radius'  %>
 </div>
-  
-</div>
-
-
-
-
 
 <div class="small-12 medium-3 column">
-      <aside class="sidebar" role="complementary">
-        <%= link_to t("proposals.index.start_proposal"), new_proposal_path, class: 'button radius expand' %>
-        <%= render "shared/tag_cloud", taggable: 'proposal' %>
-      </aside>
-  </div> 
-
-
-
+  <aside class="sidebar" role="complementary">
+    <%= link_to t("proposals.index.start_proposal"),
+                new_proposal_path, class: 'button radius expand' %>
+    <%= render "shared/tag_cloud", taggable: 'proposal' %>
+  </aside>
+</div>

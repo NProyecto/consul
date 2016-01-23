@@ -13,21 +13,27 @@
     </div>
 
     <div class="small-12 column">
+      <%= f.label :geozone_id,  t("spending_proposals.form.geozone") %>
+      <%= f.select :geozone_id, geozone_select_options, {include_blank: t("geozones.none"), label: false} %>
+    </div>
+
+    <div class="small-12 column">
       <%= f.label :tag_list, t("debates.form.tags_label") %>
       <p class="note"><%= t("debates.form.tags_instructions") %></p>
-      <span class="tags">
-      <%= f.label :tag_list, t("debates.form.tag_category_label") %>  
+
+      <div class="tags">
+        <%= f.label :category_tag_list, t("debates.form.tag_category_label") %>
         <% @category_tags.each do |tag| %>
           <a class="js-add-tag-link"><%= tag.name %></a>
         <% end %>
-        <%= f.label :tag_list, t("debates.form.tag_district_label") %> 
-        <% @district_select.each do |g| %>
-          <a class="js-add-tag-link"><%= g.name%></a>
-        <% end %>
-      </span>
-      <%= f.text_field :tag_list, value: @debate.tag_list.to_s, label: false, placeholder: t("debates.form.tags_placeholder"), class: 'js-tag-list' %>
-    </div>
+      </div>
 
+      <br>
+      <%= f.text_field :tag_list, value: @debate.tag_list.to_s,
+                        label: false,
+                        placeholder: t("debates.form.tags_placeholder"),
+                        class: 'js-tag-list' %>
+    </div>
     <div class="small-12 column">
       <% if @debate.new_record? %>
         <%= f.label :terms_of_service do %>

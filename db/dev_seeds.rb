@@ -88,33 +88,6 @@ ActsAsTaggableOn::Tag.create!(name:  "Transparencia", featured: true, kind: "cat
 ActsAsTaggableOn::Tag.create!(name:  "Seguridad y Emergencias", featured: true, kind: "category")
 ActsAsTaggableOn::Tag.create!(name:  "Medio Ambiente", featured: true, kind: "category")
 
-
-puts "Creating Tags Districts"
-
-ActsAsTaggableOn::Tag.create!(name:  "Centro", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Arganzuela", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Retiro" , featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Salamanca" , featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Chamartín" , featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Tetuán" , featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Chamberí" , featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Moncloa-Aravaca", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Latina", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Carabanchel", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Usera", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Puente de Vallecas", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Moratalaz", featured: true,  kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Ciudad Lineal", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Hortaleza", featured: true, kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Villaverde", featured: true,  kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Villa de Vallecas", featured: true,  kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Vicalvaro", featured: true,  kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "San Blas-Canillejas", featured: true,  kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Barajas", featured: true,   kind: "district")
-ActsAsTaggableOn::Tag.create!(name:  "Fuencarral-El Pardo", featured: true,   kind: "district")
-
-
-
 puts "Creating Debates"
 
 tags = Faker::Lorem.words(25)

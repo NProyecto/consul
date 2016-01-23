@@ -264,7 +264,7 @@ en:
       proposal_video_url_note: You may add a link to YouTube or Vimeo
       tag_category_label: "Categories"
       tag_district_label: "Districts"
-      tags_instructions: "Tag this proposal. You can choose from proposed categories and districts or add your own"
+      tags_instructions: "Tag this proposal. You can choose from proposed categories or add your own"
       tags_label: Tags
       tags_placeholder: Enter the tags you would like to use, separated by commas (',')
     index:
