@@ -97,6 +97,7 @@ org_user_ids = User.organizations.pluck(:id)
 not_org_users = User.where(['users.id NOT IN(?)', org_user_ids])
 
 puts "Creating Tags Categories"
+
 ActsAsTaggableOn::Tag.create!(name:  "Asociaciones", featured: true, kind: "category")
 ActsAsTaggableOn::Tag.create!(name:  "Cultura", featured: true, kind: "category")
 ActsAsTaggableOn::Tag.create!(name:  "Deportes", featured: true, kind: "category")
@@ -116,7 +117,6 @@ ActsAsTaggableOn::Tag.create!(name:  "Medio Ambiente", featured: true, kind: "ca
 puts "Creating Debates"
 
 tags = Faker::Lorem.words(25)
-tags = ['Centro', 'Arganzuela', 'Retiro','Salamanca', 'Chamartín', 'Tetuán', 'Chamberí', 'Fuencarral-El Pardo', 'Moncloa-Aravaca', 'Latina', 'Carabanchel', 'Usera', 'Puente de Vallecas', 'Moratalaz', 'Ciudad Lineal', 'Hortaleza', 'Villaverde', 'Villa de Vallecas', 'Vicálvaro', 'San Blas', 'Barajas']
 (1..30).each do |i|
   author = User.reorder("RANDOM()").first
   description = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
@@ -125,13 +125,13 @@ tags = ['Centro', 'Arganzuela', 'Retiro','Salamanca', 'Chamartín', 'Tetuán', '
                           created_at: rand((Time.now - 1.week) .. Time.now),
                           description: description,
                           tag_list: tags.sample(3).join(','),
+                          geozone: Geozone.reorder("RANDOM()").first,
                           terms_of_service: "1")
   puts "    #{debate.title}"
 end
 
 
-tags = ['Consumo y comercio', 'Cultura y ocio', 'Deportes', 'Economía', 'Educación', 'Emergencias y seguridad', 'Hacienda', 'Medio ambiente', 'Movilidad y transportes', 'Oposiciones y empleo', 'Salud', 'Servicios sociales', 'Urbanismo y vivienda']
-
+tags = ActsAsTaggableOn::Tag.where(kind: 'category')
 (1..30).each do |i|
   author = User.reorder("RANDOM()").first
   description = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
@@ -140,6 +140,7 @@ tags = ['Consumo y comercio', 'Cultura y ocio', 'Deportes', 'Economía', 'Educac
                           created_at: rand((Time.now - 1.week) .. Time.now),
                           description: description,
                           tag_list: tags.sample(3).join(','),
+                          geozone: Geozone.reorder("RANDOM()").first,
                           terms_of_service: "1")
   puts "    #{debate.title}"
 end
@@ -148,7 +149,6 @@ end
 puts "Creating Proposals"
 
 tags = Faker::Lorem.words(25)
-tags = ['Centro', 'Arganzuela', 'Retiro','Salamanca', 'Chamartín', 'Tetuán', 'Chamberí', 'Fuencarral-El Pardo', 'Moncloa-Aravaca', 'Latina', 'Carabanchel', 'Usera', 'Puente de Vallecas', 'Moratalaz', 'Ciudad Lineal', 'Hortaleza', 'Villaverde', 'Villa de Vallecas', 'Vicálvaro', 'San Blas', 'Barajas']
 (1..30).each do |i|
   author = User.reorder("RANDOM()").first
   description = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
@@ -161,12 +161,13 @@ tags = ['Centro', 'Arganzuela', 'Retiro','Salamanca', 'Chamartín', 'Tetuán', '
                               description: description,
                               created_at: rand((Time.now - 1.week) .. Time.now),
                               tag_list: tags.sample(3).join(','),
+                              geozone: Geozone.reorder("RANDOM()").first,
                               terms_of_service: "1")
   puts "    #{proposal.title}"
 end
 
 
-tags = ['Consumo y comercio', 'Cultura y ocio', 'Deportes', 'Economía', 'Educación', 'Emergencias y seguridad', 'Hacienda', 'Medio ambiente', 'Movilidad y transportes', 'Oposiciones y empleo', 'Salud', 'Servicios sociales', 'Urbanismo y vivienda']
+tags = ActsAsTaggableOn::Tag.where(kind: 'category')
 (1..30).each do |i|
   author = User.reorder("RANDOM()").first
   description = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
@@ -179,6 +180,7 @@ tags = ['Consumo y comercio', 'Cultura y ocio', 'Deportes', 'Economía', 'Educac
                               description: description,
                               created_at: rand((Time.now - 1.week) .. Time.now),
                               tag_list: tags.sample(3).join(','),
+                              geozone: Geozone.reorder("RANDOM()").first,
                               terms_of_service: "1")
   puts "    #{proposal.title}"
 end
