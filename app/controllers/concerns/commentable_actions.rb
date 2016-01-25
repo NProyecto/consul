@@ -88,7 +88,7 @@ module CommentableActions
     end
 
     def set_geozone
-      @resource.geozone = Geozone.find(params[resource_name.to_sym][:geozone_id]) if params[resource_name.to_sym][:geozone_id].present?
+      @resource.geozone = Geozone.find(params[resource_name.to_sym].try(:[], :geozone_id)) if params[resource_name.to_sym].try(:[], :geozone_id).present?
     end
 
     def load_categories

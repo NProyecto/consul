@@ -71,7 +71,7 @@ class Proposal < ActiveRecord::Base
     }
     tag_list.each{ |tag| values[tag] = 'D' }
     values[author.username] = 'D'
-    values[geozone.name] = 'D'
+    values[geozone.name] = 'D' if geozone.present?
     values
   end
 
