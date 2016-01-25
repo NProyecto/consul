@@ -84,8 +84,6 @@ en:
     form:
       debate_text: Initial debate text
       debate_title: Debate title
-      tag_category_label: "Categorías"
-      tag_district_label: "Distritos"
       tags_instructions: Tag this debate. You can choose from our suggestions or enter your own.
       tags_label: Topics
       tags_placeholder: Enter the tags you would like to use, separated by commas (',')
@@ -123,7 +121,6 @@ en:
       recommendation_two: Any debate or comment suggesting illegal action will be deleted, as well as those intending to sabotage the debate spaces. Anything else is allowed.
       recommendations_title: Recommendations for creating a debate
       start_new: Start a debate
-      start_new_district: "Start a debate for your district"
     show:
       author_deleted: User deleted
       back_link: Go back
@@ -263,7 +260,6 @@ en:
       proposal_video_url: Link to external video
       proposal_video_url_note: You may add a link to YouTube or Vimeo
       tag_category_label: "Categories"
-      tag_district_label: "Districts"
       tags_instructions: "Tag this proposal. You can choose from proposed categories or add your own"
       tags_label: Tags
       tags_placeholder: Enter the tags you would like to use, separated by commas (',')
@@ -290,7 +286,6 @@ en:
       start_proposal: Create a proposal
       title: Proposals
       map_district: "Districts of Madrid"
-      select_district: "Select your district"
     new:
       back_link: Go back
       form:
@@ -370,7 +365,6 @@ en:
       tags: Trending
       districts: "Districs"
       categories: "Categories"
-      map: "View map of districts"
     unflag: Unflag
   simple_captcha:
     label: Enter the text from the image in the box below
