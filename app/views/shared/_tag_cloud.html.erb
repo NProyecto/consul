@@ -9,23 +9,5 @@
       (<%= tag.send(taggable_counter_field(taggable)) %>)
     <% end %>
   <% end %>
-
-  <div class="sidebar-divider"></div>
-  <h3><%= t("shared.tags_cloud.categories") %></h3>
-  <br>
 </div>
-
-<ul>
-  <% @categories.each do |category| %>
-    <li><%= link_to category.name, proposals_path(search: category.name) %></li>
-  <% end %>
-</ul>
-
-<div class="sidebar-divider"></div>
-<h3><%= t("shared.tags_cloud.districts") %></h3>
-<br>
-
-<%= link_to map_debates_path do %>
-  <%= image_tag("Distritos_Madrid.jpg") %>
-<% end %>
 
