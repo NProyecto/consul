@@ -23,7 +23,7 @@
 
       <div class="tags">
         <%= f.label :category_tag_list, t("debates.form.tag_category_label") %>
-        <% @category_tags.each do |tag| %>
+        <% @categories.each do |tag| %>
           <a class="js-add-tag-link"><%= tag.name %></a>
         <% end %>
       </div>
