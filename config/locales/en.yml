@@ -369,7 +369,7 @@ en:
     tags_cloud:
       tags: Trending
       districts: "Districs"
-      categorys: "Categories"
+      categories: "Categories"
       map: "View map of districts"
     unflag: Unflag
   simple_captcha:

@@ -369,7 +369,7 @@ es:
     tags_cloud:
       tags: Tendencias
       districts: "Distritos"
-      categorys: "Categorias"
+      categories: "Categorias"
       map: "Ver mapa de distritos"
     unflag: Deshacer denuncia
   simple_captcha:
