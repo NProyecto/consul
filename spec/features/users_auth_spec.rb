@@ -82,7 +82,7 @@ feature 'Users' do
         fill_in 'user_email', with: 'manueladelascarmenas@example.com'
         click_button 'Register'
 
-        expect(page).to have_content "You must confirm your account to continue"
+        expect(page).to have_content "To continue, please click on the confirmation link that we have sent you via email"
 
         confirm_email
         expect(page).to have_content "Your account has been confirmed"
@@ -158,7 +158,7 @@ feature 'Users' do
         fill_in 'user_email', with: 'somethingelse@example.com'
         click_button 'Register'
 
-        expect(page).to have_content "You must confirm your account to continue"
+        expect(page).to have_content "To continue, please click on the confirmation link that we have sent you via email"
 
         confirm_email
         expect(page).to have_content "Your account has been confirmed"
