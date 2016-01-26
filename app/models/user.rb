@@ -177,7 +177,7 @@ class User < ActiveRecord::Base
   end
 
   def confirmation_required?
-    !registering_with_oauth
+    super && !registering_with_oauth
   end
 
   private
