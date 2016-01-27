@@ -54,6 +54,22 @@ feature 'Tags' do
     expect(page).to have_content "Hacienda"
   end
 
+  scenario 'Tag Cloud' do
+    1.times  { create(:debate, tag_list: 'Medio Ambiente') }
+    5.times  { create(:debate, tag_list: 'Corrupción') }
+    5.times  { create(:debate, tag_list: 'Educación') }
+    10.times { create(:debate, tag_list: 'Economía') }
+
+    visit debates_path
+
+    within(:css, "#tag-cloud") do
+      expect(page.find("a:eq(1)")).to have_content("Economía")
+      expect(page.find("a:eq(2)")).to have_content("Corrupción")
+      expect(page.find("a:eq(3)")).to have_content("Educación")
+      expect(page.find("a:eq(4)")).to have_content("Medio Ambiente")
+    end
+  end
+
   scenario 'Create' do
     user = create(:user)
     login_as(user)
