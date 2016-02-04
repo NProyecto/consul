@@ -90,11 +90,6 @@
       </div>
 
       <div class="small-12">
-        <h2><%= t "admin.stats.show.combined_title" %></h2>
-        <%= events_chart_tag @event_types.keys, id: 'combined' %>
-      </div>
-
-      <div class="small-12">
         <h2><%= t "admin.stats.show.visits_title" %></h2>
         <%= visits_chart_tag id: "visits" %>
       </div>
