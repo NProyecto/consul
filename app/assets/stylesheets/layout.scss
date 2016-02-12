@@ -1663,35 +1663,21 @@ table {
   }
 }
 
-.verify {
-  margin-bottom: $line-height*2;
-  margin-top: $line-height;
+.letter-divider {
+  border-top: 1px solid #DDDDDD;
+  clear: both;
+  height: 0;
+  margin: rem-calc(24) 0;
+  position: relative;
 
-  h1 {
-    color: $check;
-
-    .icon-check {
-      line-height: rem-calc(30);
-      vertical-align: middle;
-    }
-  }
-
-  .letter-divider {
-    border-top: 1px solid #DDDDDD;
-    clear: both;
-    height: 0;
-    margin: rem-calc(24) 0;
-    position: relative;
-
-    .icon-letter {
-      background: white;
-      color: $info-color;
-      font-size: rem-calc(24);
-      margin-left: -27px;
-      padding: 0 $line-height/2;
-      position: absolute;
-      top: -12px;
-    }
+  .icon-letter {
+    background: white;
+    color: $info-color;
+    font-size: rem-calc(24);
+    margin-left: -27px;
+    padding: 0 $line-height/2;
+    position: absolute;
+    top: -12px;
   }
 }
 
