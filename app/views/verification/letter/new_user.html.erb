@@ -1,0 +1,75 @@
+<div class="row margin">
+
+  <div class="small-12 medium-9 small-centered column">
+
+    <form class="multi-form">
+      <h1><%= t("pages.verify.new") %></h1>
+
+      <p><%= t("pages.verify.already_registered",
+        verify: link_to(t("pages.verify.verify_link"), "/verifica")).html_safe %></p>
+
+      <fieldset class="active">
+        <legend><%= t("pages.verify.step_1") %></legend>
+
+        <div class="row">
+          <div class="small-12 columns">
+
+            <p><strong><%= t("pages.verify.info_code_new") %></strong></p>
+            <input type="text" label="<%= t("pages.verify.code") %>" placeholder="<%= t("pages.verify.code") %>">
+
+            <p><strong><%= t("pages.verify.step_1_info") %></strong></p>
+            <input type="text" label="<%= t("pages.verify.username") %>" placeholder="<%= t("pages.verify.username") %>">
+            <input type="email" label="<%= t("pages.verify.email") %>" placeholder="<%= t("pages.verify.email") %>">
+          </div>
+        </div>
+
+      </fieldset>
+
+      <fieldset>
+        <legend><%= t("pages.verify.step_2") %></legend>
+
+        <div class="row">
+          <div class="small-12 columns">
+          <p><strong><%= t("pages.verify.step_2_info") %></strong></p>
+
+          MISMO FORMULARIO QUE VERIFICAR CUENTA
+          (https://decide.madrid.es/residence/new)
+
+        </div>
+
+      </fieldset>
+
+      <fieldset>
+        <legend><%= t("pages.verify.step_3") %></legend>
+
+        <div class="row">
+          <div class="small-12 columns">
+            <p><strong><%= t("pages.verify.step_3_info") %></strong></p>
+            <input type="password" label="<%= t("pages.verify.password") %>" placeholder="<%= t("pages.verify.password") %>">
+            <input type="password" label="<%= t("pages.verify.password_confirmation") %>" placeholder="<%= t("pages.verify.password_confirmation") %>">
+          </div>
+        </div>
+
+      </fieldset>
+
+      <div class="buttons">
+        <a class="button radius secondary prev left"><%= t("pages.verify.back") %></a>
+        <a class="button radius success next right"><%= t("pages.verify.next") %></a>
+        <button class="button radius submit right"><%= t("pages.verify.submit_new") %></button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('form.multi-form a.next').click(function() {
+    $('fieldset.active').removeClass('active')
+    .next('fieldset').addClass('active');
+  });
+
+  $('form.multi-form a.prev').click(function() {
+   $('fieldset.active').removeClass('active')
+  .prev('fieldset').addClass('active');
+  });
+</script>

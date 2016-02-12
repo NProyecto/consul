@@ -43,9 +43,9 @@ Rails.application.routes.draw do
       get :suggest
     end
   end
-  
+
   get  'debate_links/new' => 'debate_links#new'
-  post 'debate_links'     => 'debate_links#create'  
+  post 'debate_links'     => 'debate_links#create'
 
   resources :proposals do
     member do
@@ -98,6 +98,7 @@ Rails.application.routes.draw do
     resource :letter, controller: "letter", only: [:new, :create, :show, :edit, :update]
   end
   get "/verifica", to: "verification/letter#edit"
+  get "/verifica_pending", to: "verification/letter#new_user"
 
   namespace :admin do
     root to: "dashboard#index"

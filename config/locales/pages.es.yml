@@ -99,11 +99,27 @@ es:
       opendata: Datos abiertos
       privacy: Política de Privacidad
     verify:
+      already_registered: ¿Ya estas registrado? %{verify}
+      back: Volver
       code: Código que has recibido en tu carta
       email: Email
-      info: 'Para verificar tu cuenta introduce los datos con los que te registraste:'
+      info: 'Para verificar tu cuenta introduce los datos con los que te registraste.'
       info_code: 'Ahora introduce el código que has recibido en tu carta:'
+      info_code_new: 'Introduce el código que has recibido en tu carta'
+      info_password:
+      next: Siguiente
+      new: Crear una nueva cuenta
       password: Contraseña
+      password_confirmation: Confirmar contraseña
+      step_1: Datos personales
+      step_1_info: Escoge un nombre de usuario e introduce tu email
+      step_2: Verificar residencia
+      step_2_info: Comprobaremos que estás empadronado en el municipio de Madrid
+      step_3: Contraseña
+      step_3_info: Por último escoge una contraseña para entrar a tu cuenta
       submit: Verificar mi cuenta
+      submit_new: Crear mi cuenta
       title: Verifica tu cuenta
+      username: Nombre de usuario
+      verify_link: verifica tu cuenta
     while_unfinished_html: Mientras acabamos el nuevo portal, te invitamos a visitar el <a href="/blog" target="_blank">blog del Área de Participación Ciudadana, Transparencia y Gobierno Abierto</a> para conocer nuestros avances y novedades; o la <a href="/">sección de Participación Ciudadana</a> donde poder decidir qué ciudad es la que quieres.

@@ -99,11 +99,25 @@ en:
       opendata: Open Data
       privacy: Privacy Policy
     verify:
+      already_registered: Already registered? %{verify}
+      back: Back
       code: Code you received in letter
       email: Email
-      info: 'For verufy your account introduce your access data:'
+      info: 'For verufy your account introduce your access data.'
       info_code: 'Now introduce the code you received in letter:'
+      info_code_new: 'Introduce the code you received in letter:'
+      next: Next
       password: Password
+      password_confirmation: Confirm password
+      step_1: Personal data
+      step_1_info: Choose an userneme and introduce your email
+      step_2: Verify residence
+      step_2_info: We will check that you are registered in the city of Madrid
+      step_3: Password
+      step_3_info: Finally choose a password to access your account
       submit: Verify my account
+      submit_new: Create my account
       title: Verify your account
+      username: Username
+      verify_link: verify your account
     while_unfinished_html: While we finish, we encourage you to visit the <a href="/blog" target="_blank">Citizen Participation Area, Transparency and Open Government blog</a> to know about our progress and news; or the <a href="/">Citizen Participation section</a> where you can decide which is the city you want.
