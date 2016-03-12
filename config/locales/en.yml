@@ -210,14 +210,6 @@ en:
       proposals: Proposals
       processes: Open processes
       spending_proposals: Participatory budgeting
-  legislation:
-    help:
-      alt: Select the text you want to comment and press the button with the pencil.
-      text: To comment this document you must %{sign_in} or %{sign_up}. Then select the text you want to comment and press the button with the pencil.
-      text_logged: "Select the text you want to comment and press the button with the pencil."
-      text_sign_in: login
-      text_sign_up: sign up
-      title: How I can comment this document?
   locale: English
   notifications:
     index:
@@ -234,7 +226,7 @@ en:
     title: "Districts"
     proposal_for_district: "Start a proposal for your district"
     select_district: Scope of operation
-    start_proposal: Create a proposal
+    start_proposal: Create proposal
   omniauth:
     facebook:
       sign_in: Sign in with Facebook
@@ -293,7 +285,7 @@ en:
         other: " containing the term '%{search_term}'"
       select_order: Order by
       select_order_long: 'You are viewing proposals according to:'
-      start_proposal: Create a proposal
+      start_proposal: Create proposal
       title: Proposals
       top: Top weekly
       top_link_proposals: The most supported proposals by category
@@ -428,7 +420,7 @@ en:
       date_4_info: Final vote
       signin_only: For create spending proposals you must %{signin} or %{signup}.
       signin: sign in
-      signup: registrarte
+      signup: sign up
       title_html: You decide how to invest 60 million euros<br> to your city
       title_page: Participatory budgeting
       verified_only: Only verified users can create spending proposals, %{verify_account}.
@@ -552,11 +544,3 @@ en:
     google_oauth2:
       sign_in: "Sign in with Google"
       sign_up: "Sign up with Google"
-  legislation:
-    help:
-      title: "How I can comment this document?"
-      text_logged: "Select the text you want to comment and press the button with the pencil."
-      text: "To comment this document you must %{sign_in} or %{sign_up}. Then select the text you want to comment and press the button with the pencil."
-      text_sign_in: "login"
-      text_sign_up: "sign up"
-      alt: "Select the text you want to comment and press the button with the pencil."
