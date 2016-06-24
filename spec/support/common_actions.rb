@@ -9,7 +9,6 @@ module CommonActions
     fill_in 'user_email',                 with: email
     fill_in 'user_password',              with: password
     fill_in 'user_password_confirmation', with: password
-    fill_in 'user_captcha',               with: correct_captcha_text
     check 'user_terms_of_service'
 
     click_button 'Register'
@@ -25,14 +24,37 @@ module CommonActions
     click_button 'Enter'
   end
 
-  def login_as_manager
+  def login_as_authenticated_manager
     login, user_key, date = "JJB042", "31415926", Time.now.strftime("%Y%m%d%H%M%S")
-    allow_any_instance_of(ManagerAuthenticator).to receive(:auth).and_return({login: login, user_key: user_key, date: date})
+    allow_any_instance_of(ManagerAuthenticator).to receive(:auth).and_return({login: login, user_key: user_key, date: date}.with_indifferent_access)
     visit management_sign_in_path(login: login, clave_usuario: user_key, fecha_conexion: date)
+  end
+
+  def login_as_manager
+    manager = create(:manager)
+    login_as(manager.user)
+    visit management_sign_in_path
   end
 
   def login_managed_user(user)
     allow_any_instance_of(Management::BaseController).to receive(:managed_user).and_return(user)
+  end
+
+  def fill_in_proposal
+    fill_in 'proposal_title', with: 'Help refugees'
+    fill_in 'proposal_question', with: '¿Would you like to give assistance to war refugees?'
+    fill_in 'proposal_summary', with: 'In summary, what we want is...'
+    fill_in 'proposal_description', with: 'This is very important because...'
+    fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
+    fill_in 'proposal_video_url', with: 'http://youtube.com'
+    fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
+    check 'proposal_terms_of_service'
+  end
+
+  def fill_in_debate
+    fill_in 'debate_title', with: 'A title for a debate'
+    fill_in 'debate_description', with: 'This is very important because...'
+    check 'debate_terms_of_service'
   end
 
   def confirm_email
@@ -63,7 +85,7 @@ module CommonActions
     commentable_path = commentable.is_a?(Proposal) ? proposal_path(commentable) : debate_path(commentable)
     visit commentable_path
 
-    fill_in "comment-body-#{commentable.class.name.downcase}_#{commentable.id}", with: 'Have you thought about...?'
+    fill_in "comment-body-#{commentable.class.name.underscore}_#{commentable.id}", with: 'Have you thought about...?'
     click_button 'Publish comment'
 
     expect(page).to have_content 'Have you thought about...?'
@@ -84,10 +106,6 @@ module CommonActions
       click_button 'Publish reply'
     end
     expect(page).to have_content 'It will be done next week.'
-  end
-
-  def correct_captcha_text
-    SimpleCaptcha::SimpleCaptchaData.last.value
   end
 
   def avatar(name)
@@ -155,6 +173,9 @@ module CommonActions
 
   def expect_message_you_need_to_sign_in
     expect(page).to have_content 'You must Sign in or Sign up to continue'
+    expect(page).to have_link("Sign in", href: new_user_session_path)
+    expect(page).to have_link("Sign up", href: new_user_registration_path)
+
     expect(page).to have_selector('.in-favor a', visible: false)
   end
 
@@ -171,6 +192,29 @@ module CommonActions
 
   def expect_message_only_verified_can_vote_proposals
     expect(page).to have_content 'Only verified users can vote on proposals'
+    expect(page).to have_link("verify your account", href: verification_path)
+
+    expect(page).to have_selector('.in-favor a', visible: false)
+  end
+
+  def expect_message_organizations_cannot_vote
+    expect(page).to have_content 'Organisations are not permitted to vote.'
+    expect(page).to have_selector('.in-favor a', visible: false)
+  end
+
+  def expect_message_voting_not_allowed
+    expect(page).to have_content 'Voting phase is closed'
+    expect(page).to_not have_selector('.in-favor a')
+  end
+
+  def expect_message_already_voted_in_another_geozone(geozone)
+    expect(page).to have_content 'You have already supported other district proposals.'
+    expect(page).to have_link(geozone.name, href: spending_proposals_path(geozone: geozone))
+    expect(page).to have_selector('.in-favor a', visible: false)
+  end
+
+  def expect_message_insufficient_funds
+    expect(page).to have_content "This proposal's price is more than the available amount left"
     expect(page).to have_selector('.in-favor a', visible: false)
   end
 
@@ -187,6 +231,61 @@ module CommonActions
 
   def tag_names(tag_cloud)
     tag_cloud.tags.map(&:name)
+  end
+
+  def add_to_ballot(spending_proposal)
+    within("#spending_proposal_#{spending_proposal.id}") do
+      find('.add a').trigger('click')
+    end
+  end
+
+  def create_proposal_notification(proposal)
+    login_as(proposal.author)
+    visit root_path
+
+    click_link "My activity"
+
+    within("#proposal_#{proposal.id}") do
+      click_link "Send notification"
+    end
+
+    fill_in 'proposal_notification_title', with: "Thank you for supporting my proposal #{proposal.title}"
+    fill_in 'proposal_notification_body', with: "Please share it with others so we can make it happen! #{proposal.summary}"
+    click_button "Send message"
+
+    expect(page).to have_content "Your message has been sent correctly."
+    Notification.last
+  end
+
+  def create_direct_message(sender, receiver)
+    login_as(sender)
+    visit user_path(receiver)
+
+    click_link "Send private message"
+
+    expect(page).to have_content "Send private message to #{receiver.name}"
+
+    fill_in 'direct_message_title', with: "Hey #{receiver.name}!"
+    fill_in 'direct_message_body',  with: "How are you doing? This is #{sender.name}"
+
+    click_button "Send message"
+
+    expect(page).to have_content "You message has been sent successfully."
+    DirectMessage.last
+  end
+
+  def expect_badge_for(resource_name, resource)
+    within("##{resource_name}_#{resource.id}") do
+      expect(page).to have_css ".label.round"
+      expect(page).to have_content "Employee"
+    end
+  end
+
+  def expect_no_badge_for(resource_name, resource)
+    within("##{resource_name}_#{resource.id}") do
+      expect(page).to_not have_css ".label.round"
+      expect(page).to_not have_content "Employee"
+    end
   end
 
 end

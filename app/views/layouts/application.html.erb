@@ -4,8 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <%=render "layouts/tracking_data"%>
     <title><%= content_for?(:title) ? yield(:title) : setting['org_name'] %></title>
     <%= stylesheet_link_tag    "application" %>
+    <!--[if lt IE 9]>
+      <%= stylesheet_link_tag "ie" %>
+    <![endif]-->
     <%= javascript_include_tag "application", 'data-turbolinks-track' => true %>
     <%= csrf_meta_tags %>
     <%= favicon_link_tag "favicon.ico" %>
@@ -32,36 +36,16 @@
           <p>
             <%= t("layouts.application.ie",
             chrome: link_to(
-                    t("layouts.application.chrome"), "https://www.google.com/chrome/browser/desktop/", target: "_blank"),
+                    t("layouts.application.chrome"), "https://www.google.com/chrome/browser/desktop/", title: t("shared.target_blank_html"), target: "_blank"),
             firefox: link_to(
-                     t("layouts.application.firefox"), "https://www.mozilla.org/firefox", target: "_blank")
+                     t("layouts.application.firefox"), "https://www.mozilla.org/firefox", title: t("shared.target_blank_html"), target: "_blank")
             ).html_safe %>
           </p>
         </div>
       <% end %>
       <![endif]-->
 
-      <% if notice %>
-      <div id="notice" data-alert class="row" data-closable>
-        <div class="callout success">
-          <button class="close-button" aria-label="<%= t("application.close") %>" type="button" data-close>
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <%= notice %>
-        </div>
-      </div>
-      <% end %>
-
-      <% if alert %>
-      <div id="alert" data-alert class="row" data-closable>
-        <div class="callout alert">
-          <button class="close-button" aria-label="<%= t("application.close") %>" type="button" data-close>
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <%= alert %>
-        </div>
-      </div>
-      <% end %>
+      <%= render 'layouts/flash' %>
 
       <%= yield %>
       <div class="push"></div>

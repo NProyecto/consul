@@ -11,7 +11,6 @@ feature 'Users' do
       fill_in 'user_email',                 with: 'manuela@madrid.es'
       fill_in 'user_password',              with: 'judgementday'
       fill_in 'user_password_confirmation', with: 'judgementday'
-      fill_in 'user_captcha',               with: correct_captcha_text
       check 'user_terms_of_service'
 
       click_button 'Register'
@@ -168,6 +167,12 @@ feature 'Users' do
         click_link 'Sign up with Twitter'
 
         expect(current_path).to eq(finish_signup_path)
+
+        expect(page).to have_field('user_username', with: 'manuela')
+
+        click_button 'Register'
+
+        expect(current_path).to eq(do_finish_signup_path)
 
         fill_in 'user_username', with: 'manuela2'
         click_button 'Register'

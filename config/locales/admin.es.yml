@@ -7,6 +7,39 @@ es:
       hide: Ocultar
       hide_author: Bloquear al autor
       restore: Volver a mostrar
+      mark_featured: Destacar
+      unmark_featured: Quitar destacado
+    banners:
+      index:
+        title: Banners
+        create: Crear un banner
+        edit: Editar banner
+        delete: Eliminar banner
+        filters:
+          all: Todos
+          with_active: Activos
+          with_inactive: Inactivos
+      banner:
+        title: Título
+        description:  Descripción
+        target_url:  Enlace
+        style: Estilo
+        image: Imagen
+        post_started_at: Inicio de publicación
+        post_ended_at: Fin de publicación
+      edit:
+        back: Volver
+        editing: Editar el banner
+        form:
+          submit_button: Guardar Cambios
+      errors:
+        form:
+          error:
+            one: "error impidió guardar el banner"
+            other: "errores impidieron guardar el banner."
+      new:
+        back: Volver
+        creating: Crear banner
     activity:
       show:
         action: Acción
@@ -15,6 +48,7 @@ es:
           hide: Ocultado
           restore: Restaurado
         by: Moderado por
+        content: Contenido
         filter: Mostrar
         filters:
           all: Todo
@@ -36,6 +70,7 @@ es:
         title: Comentarios ocultos
     dashboard:
       index:
+        back: Volver a
         title: Administración
     debates:
       index:
@@ -45,15 +80,29 @@ es:
           with_confirmed_hide: Confirmados
           without_confirmed_hide: Pendientes
         title: Debates ocultos
+    managers:
+      index:
+        title: Gestores
+      manager:
+        add: Añadir como Gestor
+        delete: Borrar
+      search:
+        email_placeholder: Buscar usuario por email
+        search: Buscar
+        user_not_found: Usuario no encontrado
     menu:
       activity: Actividad de moderadores
+      admin: Menú de administración
+      banner: Gestionar banners
       debate_topics: Temas de debate
       hidden_comments: Comentarios ocultos
       hidden_debates: Debates ocultos
       hidden_proposals: Propuestas ocultas
       hidden_users: Usuarios bloqueados
       incomplete_verifications: Verificaciones incompletas
+      managers: Gestores
       moderators: Moderadores
+      newsletter: Envío de Newsletters
       valuators: Evaluadores
       officials: Cargos públicos
       organizations: Organizaciones
@@ -64,24 +113,38 @@ es:
       index:
         title: Moderadores
       moderator:
-        add: Añadir
+        add: Añadir como Moderador
         delete: Borrar
       search:
         email_placeholder: Buscar usuario por email
         search: Buscar
         user_not_found: Usuario no encontrado
+    newsletters:
+      index:
+        title: Envío de newsletters
+        button: Descargar zip con lista de usuarios
     valuators:
       index:
         title: Evaluadores
       valuator:
-        add: Añadir
+        description_placeholder: "Descripción (opcional)"
+        user_found: Usuario encontrado
+        add: Añadir como evaluador
       search:
         email_placeholder: Buscar usuario por email
         search: Buscar
         user_not_found: Usuario no encontrado
+      summary:
+        title: Resumen de evaluación de propuestas de inversión
+        valuator_name: Evaluador
+        finished_and_feasible_count: Finalizadas viables
+        finished_and_unfeasible_count: Finalizadas inviables
+        finished_count: Finalizadas
+        in_evaluation_count: En evaluación
+        total_count: Total
+        cost: Coste total
     officials:
       edit:
-        back: Volver
         destroy: Eliminar condición de 'Cargo Público'
         title: 'Cargos Públicos: Editar usuario'
       flash:
@@ -107,9 +170,9 @@ es:
           pending: Pendientes
           rejected: Rechazadas
           verified: Verificadas
-        hidden_count:
-          one: Hay además una organización sin usuario o con el usuario bloqueado
-          other: Hay %{count} organizaciones sin usuario o con el usuario bloqueado
+        hidden_count_html:
+          one: Hay además <strong>una organización</strong> sin usuario o con el usuario bloqueado.
+          other: Hay <strong>%{count} organizaciones</strong> sin usuario o con el usuario bloqueado.
         reject: Rechazar
         rejected: Rechazada
         search: Buscar
@@ -126,11 +189,13 @@ es:
           all: Todas
           with_confirmed_hide: Confirmadas
           without_confirmed_hide: Pendientes
-        title: Propuestas ocultos
+        title: Propuestas ocultas
     settings:
       flash:
         updated: Valor actualizado
       index:
+        banners: Banner style
+        banner_imgs: Banner images
         title: Configuración global
         update_setting: Actualizar
         feature_flags: Funcionalidades
@@ -143,6 +208,9 @@ es:
       proposal_search:
         button: Buscar
         placeholder: Buscar propuestas por título, código, descripción o pregunta
+      spending_proposal_search:
+        button: Buscar
+        placeholder: Buscar propuestas por título o descripción
       user_search:
         button: Buscar
         placeholder: Buscar usuario por nombre o email
@@ -150,23 +218,34 @@ es:
       index:
         geozone_filter_all: Todos los ámbitos de actuación
         administrator_filter_all: Todos los administradores
+        valuator_filter_all: Todos los evaluadores
         tags_filter_all: Todas las etiquetas
+        max_per_geozone: Corte por distrito
+        max_for_no_geozone: Corte por ciudad
         filters:
           valuation_open: Abiertas
           without_admin: Sin administrador
           managed: Gestionando
           valuating: En evaluación
           valuation_finished: Evaluación finalizada
+          all: Todas
         title: Propuestas de inversión para presupuestos participativos
         assigned_admin: Administrador asignado
         no_admin_assigned: Sin admin asignado
         no_valuators_assigned: Sin evaluador
+        summary_link: "Resumen de propuestas"
+        valuator_summary_link: "Resumen de evaluadores"
+        feasibility:
+          feasible: "Viable (%{price})"
+          not_feasible: "Inviable"
+          undefined: "Sin definir"
       show:
         assigned_admin: Administrador asignado
         assigned_valuators: Evaluadores asignados
         back: Volver
         classification: Clasificación
         heading: Propuesta de inversión %{id}
+        edit: Editar
         edit_classification: Editar clasificación
         association_name: Asociación
         by: Autor
@@ -183,26 +262,78 @@ es:
         tags: Etiquetas
         tags_placeholder: "Escribe las etiquetas que desees separadas por comas (,)"
         undefined: Sin definir
+      results:
+        title: Ranking actual de propuestas - Votaciones finales
+        spending_proposal: Título
+        ballot_lines_count: Votos
+        hide_discarded_link: Ocultar descartadas
+        show_all_link: Mostrar todas
+        price: Coste
+        amount_available: Presupuesto disponible
+      summary:
+        title: Resumen de propuestas de inversión
+        geozone_name: Ámbito de ciudad
+        finished_and_feasible_count: Finalizadas viables
+        finished_and_unfeasible_count: Finalizadas inviables
+        finished_count: Finalizadas
+        in_evaluation_count: En evaluación
+        total_count: Total
+        cost_for_geozone: Coste total
     stats:
       show:
         stats_title: Estadísticas
+        participatory_budget: Presupuestos Participativos
+        direct_messages: Mensajes directos
+        proposal_notifications: Notificaciones de propuestas
+        redeemable_codes: Códigos enviados por carta
         summary:
+          ballot_line_votes: Votos en inversión
+          ballot_votes: Presupuestos votados
           comment_votes: Votos en comentarios
           comments: Comentarios
           debate_votes: Votos en debates
           debates: Debates
-          open_answer_votes: Votos preguntas abiertas
           proposal_votes: Votos en propuestas
           proposals: Propuestas
-          surveys: Encuestas rellenadas
+          spending_proposal_votes: Votos Propuesta Inversión
+          spending_proposals: Propuestas de inversión
           unverified_users: Usuarios sin verificar
           user_level_three: Usuarios de nivel tres
           user_level_two: Usuarios de nivel dos
           users: Usuarios
           verified_users: Usuarios verificados
+          verified_users_who_didnt_vote_proposals: Usuarios verificados que no han votado propuestas
           visits: Visitas
           votes: Votos
-        visits_title: Visitas
+      graph:
+        debate_created: Debates
+        spending_proposals: Propuestas de inversión
+        visit: Visitas
+        level_2_user: Usuarios nivel 2
+        proposal_created: Propuestas Ciudadanas
+        participatory_budget: Presupuestos Participativos
+        user_voted_budgets: Usuarios que han votado
+      spending_proposals:
+        title: Presupuestos participativos
+        districts: Distrito
+        users: Usuarios
+        users_city_total: Usuarios que han votado propuestas de ciudad
+        users_district_total: Usuarios que han votado propuestas de distrito
+        users_city_only: Usuarios que han votado SOLO propuestas de CIUDAD
+        users_district_only: Usuarios que han votado SOLO propuestas de DISTRITO
+        users_both_total: Usuarios que han votado AMBAS
+      direct_messages:
+        title: Mensajes directos
+        total: Total
+        users_who_have_sent_message: Usuarios que han enviado un mensaje privado
+      proposal_notifications:
+        title: Notificaciones de propuestas
+        total: Total
+        proposals_with_notifications: Propuestas con notificaciones
+      reedemable_codes:
+        title: Códigos enviados por carta
+        total: Total
+        campaign: Después de las 400.000 cartas
     tags:
       create: Crear Tema
       destroy: Eliminar Tema
@@ -222,11 +353,10 @@ es:
           without_confirmed_hide: Pendientes
         title: Usuarios bloqueados
       show:
-        back: Volver
         email: 'Email:'
         hidden_at: 'Bloqueado:'
         registered_at: 'Fecha de alta:'
-        title: Actividad del usuario %{user}
+        title: Actividad del usuario (%{user})
     verifications:
       index:
         phone_not_given: No ha dado su teléfono

@@ -1,5 +1,6 @@
 es:
   settings:
+    comments_body_max_length: "Longitud máxima de los comentarios"
     official_level_1_name: "Cargos públicos de nivel 1"
     official_level_2_name: "Cargos públicos de nivel 2"
     official_level_3_name: "Cargos públicos de nivel 3"
@@ -14,4 +15,10 @@ es:
     per_page_code: "Código a incluir en cada página"
     feature:
       debates: Debates
-      spending_proposals: Propuestas de gasto
+      spending_proposals: Propuestas de inversión
+      spending_proposal_features:
+        phase1: "Prespuestos participativos: Fase 1 - Aceptar propuestas"
+        phase2: "Prespuestos participativos: Fase 2 - Preselección de propuestas"
+        phase3: "Prespuestos participativos: Fase 3 - Votación final"
+        voting_allowed: Votaciones de preselección sobre propuestas de inversión.
+        final_voting_allowed: Votaciones finales en propuestas de inversión.

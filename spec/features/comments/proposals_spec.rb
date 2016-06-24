@@ -32,7 +32,7 @@ feature 'Commenting proposals' do
     expect(page).to have_content first_child.body
     expect(page).to have_content second_child.body
 
-    expect(page).to have_link "Go back to #{proposal.title}", proposal_path(proposal)
+    expect(page).to have_link "Go back to #{proposal.title}", href: proposal_path(proposal)
   end
 
   scenario 'Collapsable comments', :js do
@@ -168,7 +168,10 @@ feature 'Commenting proposals' do
 
     within "#comments" do
       expect(page).to have_content 'Have you thought about...?'
-      expect(page).to have_content '(1)'
+    end
+
+    within "#tab-comments-label" do
+      expect(page).to have_content 'Comments (1)'
     end
   end
 

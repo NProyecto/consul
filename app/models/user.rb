@@ -2,7 +2,6 @@ class User < ActiveRecord::Base
 
   include Verification
 
-  apply_simple_captcha
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable, :omniauthable, :async
 
@@ -13,19 +12,26 @@ class User < ActiveRecord::Base
   has_one :administrator
   has_one :moderator
   has_one :valuator
+  has_one :manager
   has_one :organization
+  has_one :forum
   has_one :lock
+  has_one :ballot
   has_many :flags
   has_many :identities, dependent: :destroy
   has_many :debates, -> { with_hidden }, foreign_key: :author_id
   has_many :proposals, -> { with_hidden }, foreign_key: :author_id
   has_many :comments, -> { with_hidden }
+  has_many :spending_proposals, foreign_key: :author_id
   has_many :failed_census_calls
   has_many :notifications
+  has_many :direct_messages_sent,     class_name: 'DirectMessage', foreign_key: :sender_id
+  has_many :direct_messages_received, class_name: 'DirectMessage', foreign_key: :receiver_id
   belongs_to :geozone
+  belongs_to :representative, class_name: "Forum"
 
   validates :username, presence: true, if: :username_required?
-  validates :username, uniqueness: true, if: :username_required?
+  validates :username, uniqueness: { scope: :registering_with_oauth }, if: :username_required?
   validates :document_number, uniqueness: { scope: :document_type }, allow_nil: true
 
   validate :validate_username_length
@@ -43,12 +49,15 @@ class User < ActiveRecord::Base
   attr_accessor :skip_password_validation
   attr_accessor :use_redeemable_code
 
-  scope :administrators, -> { joins(:administrators) }
+  scope :administrators, -> { joins(:administrator) }
   scope :moderators,     -> { joins(:moderator) }
   scope :organizations,  -> { joins(:organization) }
+  scope :forums,         -> { joins(:forum) }
   scope :officials,      -> { where("official_level > 0") }
+  scope :newsletter,     -> { where(newsletter: true) }
   scope :for_render,     -> { includes(:organization) }
   scope :by_document,    -> (document_type, document_number) { where(document_type: document_type, document_number: document_number) }
+  scope :email_digest,   -> { where(email_digest: true) }
 
   before_validation :clean_document_number
 
@@ -82,6 +91,11 @@ class User < ActiveRecord::Base
     voted.each_with_object({}) { |v, h| h[v.votable_id] = v.value }
   end
 
+  def spending_proposal_votes(spending_proposals)
+    voted = votes.for_spending_proposals(spending_proposals)
+    voted.each_with_object({}) { |v, h| h[v.votable_id] = v.value }
+  end
+
   def comment_flags(comments)
     comment_flags = flags.for_comments(comments)
     comment_flags.each_with_object({}){ |f, h| h[f.flaggable_id] = true }
@@ -99,8 +113,24 @@ class User < ActiveRecord::Base
     valuator.present?
   end
 
+  def manager?
+    manager.present?
+  end
+
   def organization?
     organization.present?
+  end
+
+  def forum?
+    forum.present?
+  end
+
+  def has_representative?
+    representative.present?
+  end
+
+  def pending_delegation_alert?
+    has_representative? && accepted_delegation_alert == false
   end
 
   def verified_organization?
@@ -118,6 +148,16 @@ class User < ActiveRecord::Base
 
   def remove_official_position!
     update official_position: nil, official_level: 0
+  end
+
+  def has_official_email?
+    domain = Setting['email_domain_for_officials']
+    !email.blank? && ( (email.end_with? "@#{domain}") || (email.end_with? ".#{domain}") )
+  end
+
+  def display_official_position_badge?
+    return true if official_level > 1
+    official_position_badge? && official_level == 1
   end
 
   def block
@@ -148,6 +188,7 @@ class User < ActiveRecord::Base
       confirmed_phone: nil,
       unconfirmed_phone: nil
     )
+    self.identities.destroy_all
   end
 
   def erased?
@@ -176,16 +217,11 @@ class User < ActiveRecord::Base
   end
 
   def username_required?
-    !organization? && !erased? && !registering_with_oauth
+    !organization? && !erased?
   end
 
   def email_required?
-    !erased? && !registering_with_oauth
-  end
-
-  def has_official_email?
-    domain = Setting['email_domain_for_officials']
-    !email.blank? && ( (email.end_with? "@#{domain}") || (email.end_with? ".#{domain}") )
+    !erased?
   end
 
   def locale
@@ -209,12 +245,27 @@ class User < ActiveRecord::Base
   end
 
   def save_requiring_finish_signup
-    self.update(registering_with_oauth: true)
+    begin
+      self.registering_with_oauth = true
+      self.save(validate: false)
+    # Devise puts unique constraints for the email the db, so we must detect & handle that
+    rescue ActiveRecord::RecordNotUnique
+      self.email = nil
+      self.save(validate: false)
+    end
+    true
   end
 
-  def save_requiring_finish_signup_without_email
-    self.update(registering_with_oauth: true, email: nil)
+  def supported_spending_proposals_geozone
+    if supported_spending_proposals_geozone_id.present?
+      Geozone.find(supported_spending_proposals_geozone_id)
+    end
   end
+
+  def ability
+    @ability ||= Ability.new(self)
+  end
+  delegate :can?, :cannot?, to: :ability
 
   private
     def clean_document_number

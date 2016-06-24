@@ -7,25 +7,31 @@ class Proposal < ActiveRecord::Base
   include Searchable
   include Filterable
 
-  apply_simple_captcha
   acts_as_votable
   acts_as_paranoid column: :hidden_at
   include ActsAsParanoidAliases
 
+  RETIRE_OPTIONS = %w(duplicated started unfeasible done other)
+  PROCEEDINGS = [ 'Derechos Humanos' ]
+
   belongs_to :author, -> { with_hidden }, class_name: 'User', foreign_key: 'author_id'
   belongs_to :geozone
   has_many :comments, as: :commentable
+  has_many :proposal_notifications
 
   validates :title, presence: true
-  validates :question, presence: true
+  validates :question, presence: true, unless: :proceeding?
   validates :summary, presence: true
   validates :author, presence: true
   validates :responsible_name, presence: true
 
   validates :title, length: { in: 4..Proposal.title_max_length }
   validates :description, length: { maximum: Proposal.description_max_length }
-  validates :question, length: { in: 10..Proposal.question_max_length }
+  validates :question, length: { in: 10..Proposal.question_max_length }, unless: :proceeding?
   validates :responsible_name, length: { in: 6..Proposal.responsible_name_max_length }
+  validates :retired_reason, inclusion: { in: RETIRE_OPTIONS, allow_nil: true }
+  validates :proceeding, inclusion: { in: PROCEEDINGS, allow_nil: true }
+  validates :sub_proceeding, presence: true, length: { in: 10..150 }, if: :proceeding?
 
   validates :terms_of_service, acceptance: { allow_nil: false }, on: :create
 
@@ -42,6 +48,10 @@ class Proposal < ActiveRecord::Base
   scope :sort_by_relevance,        -> { all }
   scope :sort_by_flags,            -> { order(flags_count: :desc, updated_at: :desc) }
   scope :last_week,                -> { where("proposals.created_at >= ?", 7.days.ago)}
+  scope :retired,                  -> { where.not(retired_at: nil) }
+  scope :not_retired,              -> { where(retired_at: nil) }
+  scope :proceedings,              -> { where.not(proceeding: nil) }
+  scope :not_proceedings,          -> { where(proceeding: nil) }
 
   def to_param
     "#{id}-#{title}".parameterize
@@ -93,6 +103,10 @@ class Proposal < ActiveRecord::Base
     cached_votes_up + physical_votes
   end
 
+  def voters
+    votes_for.voters
+  end
+
   def editable?
     total_votes <= Setting["max_votes_for_proposal_edit"].to_i
   end
@@ -103,6 +117,10 @@ class Proposal < ActiveRecord::Base
 
   def votable_by?(user)
     user && user.level_two_or_three_verified?
+  end
+
+  def retired?
+    retired_at.present?
   end
 
   def register_vote(user, vote_value)
@@ -140,6 +158,26 @@ class Proposal < ActiveRecord::Base
 
   def self.votes_needed_for_success
     Setting['votes_for_proposal_success'].to_i
+  end
+
+  def open_plenary?
+    tag_list.include?('plenoabierto') &&
+    created_at >= Date.parse("18-04-2016").beginning_of_day
+  end
+
+  def self.open_plenary_winners
+    tagged_with('plenoabierto').
+    by_date_range(open_plenary_dates).
+    sort_by_confidence_score.
+    limit(5)
+  end
+
+  def self.open_plenary_dates
+    Date.parse("18-04-2016").beginning_of_day..Date.parse("21-04-2016").end_of_day
+  end
+
+  def notifications
+    proposal_notifications
   end
 
   protected

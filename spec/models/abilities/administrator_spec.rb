@@ -12,6 +12,7 @@ describe "Abilities::Administrator" do
   let(:debate) { create(:debate) }
   let(:comment) { create(:comment) }
   let(:proposal) { create(:proposal) }
+  let(:spending_proposal) { create(:spending_proposal) }
 
   let(:hidden_debate) { create(:debate, :hidden) }
   let(:hidden_comment) { create(:comment, :hidden) }
@@ -50,7 +51,30 @@ describe "Abilities::Administrator" do
   it { should be_able_to(:comment_as_administrator, proposal) }
   it { should_not be_able_to(:comment_as_moderator, proposal) }
 
+  it { should be_able_to(:comment_as_administrator, spending_proposal) }
+  it { should_not be_able_to(:comment_as_moderator, spending_proposal) }
+
   it { should be_able_to(:manage, Annotation) }
 
-  it { should be_able_to(:manage, SpendingProposal) }
+  it { should be_able_to(:read, SpendingProposal) }
+  it { should be_able_to(:edit, SpendingProposal) }
+  it { should be_able_to(:summary, SpendingProposal) }
+
+  describe "valuation open" do
+
+    before(:each) do
+      Setting['feature.spending_proposal_features.valuation_allowed'] = true
+    end
+
+    it { should be_able_to(:destroy, SpendingProposal) }
+  end
+
+  describe "valuation finished" do
+
+    before(:each) do
+      Setting['feature.spending_proposal_features.valuation_allowed'] = nil
+    end
+
+    it { should_not be_able_to(:destroy, SpendingProposal) }
+  end
 end

@@ -3,8 +3,8 @@
   <div class="in-favor inline-block">
     <%= link_to vote_debate_path(debate, value: 'yes'),
         class: "like #{voted_classes[:in_favor]}", title: t('votes.agree'), method: "post", remote: true do %>
-      <i class="icon-like"></i>
-      <span><%= votes_percentage('likes', debate) %></span>
+      <span class="icon-like"></span>
+      <span class="percentage"><%= votes_percentage('likes', debate) %></span>
     <% end %>
   </div>
 
@@ -12,8 +12,8 @@
 
   <div class="against inline-block">
     <%= link_to vote_debate_path(debate, value: 'no'), class: "unlike #{voted_classes[:against]}", title: t('votes.disagree'), method: "post", remote: true do %>
-      <i class="icon-unlike"></i>
-      <span><%= votes_percentage('dislikes', debate) %></span>
+      <span class="icon-unlike"></span>
+      <span class="percentage"><%= votes_percentage('dislikes', debate) %></span>
     <% end %>
   </div>
 
@@ -22,20 +22,20 @@
   </span>
 
   <% if user_signed_in? && current_user.organization? %>
-  <div class="organizations-votes" style='display:none'>
+  <div class="organizations-votes" style='display:none' aria-hidden="false">
     <p>
       <%= t("votes.organizations") %>
     </p>
   </div>
   <% elsif user_signed_in? && !debate.votable_by?(current_user)%>
-  <div class="anonymous-votes" style='display:none'>
+  <div class="anonymous-votes" style='display:none' aria-hidden="false">
     <p>
       <%= t("votes.anonymous",
           verify_account: link_to(t("votes.verify_account"), verification_path )).html_safe %>
     </p>
   </div>
   <% elsif !user_signed_in? %>
-  <div class="not-logged" style='display:none'>
+  <div class="not-logged" style='display:none' aria-hidden="false">
     <%= t("votes.unauthenticated",
       signin: link_to(t("votes.signin"), new_user_session_path),
       signup: link_to(t("votes.signup"), new_user_registration_path)).html_safe %>

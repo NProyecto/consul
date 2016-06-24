@@ -87,6 +87,29 @@ feature 'Proposals' do
     end
   end
 
+  context "Embedded video"  do
+    scenario "Show YouTube video" do
+      proposal = create(:proposal, video_url: "http://www.youtube.com/watch?v=a7UFm6ErMPU")
+      visit proposal_path(proposal)
+      expect(page).to have_selector("div[id='js-embedded-video']")
+      expect(page.html).to include 'https://www.youtube.com/embed/a7UFm6ErMPU'
+    end
+
+    scenario "Show Vimeo video" do
+      proposal = create(:proposal, video_url: "https://vimeo.com/7232823" )
+      visit proposal_path(proposal)
+      expect(page).to have_selector("div[id='js-embedded-video']")
+      expect(page.html).to include 'https://player.vimeo.com/video/7232823'
+    end
+
+    scenario "Dont show video" do
+      proposal = create(:proposal, video_url: nil)
+
+      visit proposal_path(proposal)
+      expect(page).to_not have_selector("div[id='js-embedded-video']")
+    end
+  end
+
   scenario 'Social Media Cards' do
     proposal = create(:proposal)
 
@@ -104,11 +127,6 @@ feature 'Proposals' do
       click_link 'Create proposal'
     end
 
-    expect(current_path).to eq(page_path('proposal_type'))
-    within('#new_proposal_container') do
-      click_link 'Create proposal'
-    end
-
     expect(current_path).to eq(new_proposal_path)
 
     fill_in 'proposal_title', with: 'Help refugees'
@@ -118,7 +136,6 @@ feature 'Proposals' do
     fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
     fill_in 'proposal_video_url', with: 'http://youtube.com'
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: correct_captcha_text
     check 'proposal_terms_of_service'
 
     click_button 'Create proposal'
@@ -134,6 +151,63 @@ feature 'Proposals' do
     expect(page).to have_content I18n.l(Proposal.last.created_at.to_date)
   end
 
+  scenario 'Create (predefined tag in url)' do
+    author = create(:user)
+    login_as(author)
+
+    visit new_proposal_path(tag: "open-plenary")
+    fill_in_proposal
+    click_button 'Create proposal'
+
+    expect(page).to have_content 'Proposal created successfully.'
+    within("#tags") do
+      expect(page).to have_content "open-plenary"
+    end
+  end
+
+  scenario 'Create with invisible_captcha honeypot field' do
+    author = create(:user)
+    login_as(author)
+
+    visit new_proposal_path
+    fill_in 'proposal_title', with: 'I am a bot'
+    fill_in 'proposal_subtitle', with: 'This is the honeypot field'
+    fill_in 'proposal_question', with: 'This is a question'
+    fill_in 'proposal_summary', with: 'This is the summary'
+    fill_in 'proposal_description', with: 'This is the description'
+    fill_in 'proposal_external_url', with: 'http://google.com/robots.txt'
+    fill_in 'proposal_responsible_name', with: 'Some other robot'
+    check 'proposal_terms_of_service'
+
+    click_button 'Create proposal'
+
+    expect(page.status_code).to eq(200)
+    expect(page.html).to be_empty
+    expect(current_path).to eq(proposals_path)
+  end
+
+  scenario 'Create proposal too fast' do
+    allow(InvisibleCaptcha).to receive(:timestamp_threshold).and_return(Float::INFINITY)
+
+    author = create(:user)
+    login_as(author)
+
+    visit new_proposal_path
+    fill_in 'proposal_title', with: 'I am a bot'
+    fill_in 'proposal_question', with: 'This is a question'
+    fill_in 'proposal_summary', with: 'This is the summary'
+    fill_in 'proposal_description', with: 'This is the description'
+    fill_in 'proposal_external_url', with: 'http://google.com/robots.txt'
+    fill_in 'proposal_responsible_name', with: 'Some other robot'
+    check 'proposal_terms_of_service'
+
+    click_button 'Create proposal'
+
+    expect(page).to have_content 'Sorry, that was too quick! Please resubmit'
+
+    expect(current_path).to eq(new_proposal_path)
+  end
+
   scenario 'Responsible name is stored for anonymous users' do
     author = create(:user)
     login_as(author)
@@ -145,7 +219,6 @@ feature 'Proposals' do
     fill_in 'proposal_description', with: 'This is very important because...'
     fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: correct_captcha_text
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
     check 'proposal_terms_of_service'
 
@@ -167,36 +240,11 @@ feature 'Proposals' do
     fill_in 'proposal_summary', with: 'In summary, what we want is...'
     fill_in 'proposal_description', with: 'This is very important because...'
     fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
-    fill_in 'proposal_captcha', with: correct_captcha_text
     check 'proposal_terms_of_service'
 
     click_button 'Create proposal'
 
     expect(page).to have_content 'Proposal created successfully.'
-  end
-
-  scenario 'Captcha is required for proposal creation' do
-    login_as(create(:user))
-
-    visit new_proposal_path
-    fill_in 'proposal_title', with: "Great title"
-    fill_in 'proposal_question', with: '¿Would you like to give assistance to war refugees?'
-    fill_in 'proposal_summary', with: 'In summary, what we want is...'
-    fill_in 'proposal_description', with: 'Very important issue...'
-    fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
-    fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: "wrongText!"
-    check 'proposal_terms_of_service'
-
-    click_button "Create proposal"
-
-    expect(page).to_not have_content "Proposal created successfully."
-    expect(page).to have_content "1 error"
-
-    fill_in 'proposal_captcha', with: correct_captcha_text
-    click_button "Create proposal"
-
-    expect(page).to have_content "Proposal created successfully."
   end
 
   scenario 'Errors on create' do
@@ -219,7 +267,6 @@ feature 'Proposals' do
     fill_in 'proposal_description', with: '<p>This is <script>alert("an attack");</script></p>'
     fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: correct_captcha_text
     check 'proposal_terms_of_service'
 
     click_button 'Create proposal'
@@ -241,7 +288,6 @@ feature 'Proposals' do
     fill_in 'proposal_summary', with: 'In summary, what we want is...'
     fill_in 'proposal_description', with: '<p>This is a link www.example.org</p>'
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: correct_captcha_text
     check 'proposal_terms_of_service'
 
     click_button 'Create proposal'
@@ -261,7 +307,6 @@ feature 'Proposals' do
     fill_in 'proposal_summary', with: 'In summary, what we want is...'
     fill_in 'proposal_description', with: "<script>alert('hey')</script> <a href=\"javascript:alert('surprise!')\">click me<a/> http://example.org"
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: correct_captcha_text
     check 'proposal_terms_of_service'
 
     click_button 'Create proposal'
@@ -299,7 +344,6 @@ feature 'Proposals' do
       fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
       fill_in 'proposal_video_url', with: 'http://youtube.com'
       fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-      fill_in 'proposal_captcha', with: correct_captcha_text
       check 'proposal_terms_of_service'
 
       find('.js-add-tag-link', text: 'Education').click
@@ -323,7 +367,6 @@ feature 'Proposals' do
       fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
       fill_in 'proposal_video_url', with: 'http://youtube.com'
       fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-      fill_in 'proposal_captcha', with: correct_captcha_text
       check 'proposal_terms_of_service'
 
       fill_in 'proposal_tag_list', with: 'Refugees, Solidarity'
@@ -348,7 +391,6 @@ feature 'Proposals' do
       fill_in 'proposal_description', with: 'A description suitable for this test'
       fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
       fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-      fill_in 'proposal_captcha', with: correct_captcha_text
       check 'proposal_terms_of_service'
 
       fill_in 'proposal_tag_list', with: 'user_id=1, &a=3, <script>alert("hey");</script>'
@@ -363,7 +405,7 @@ feature 'Proposals' do
     end
   end
 
-  context "Geozones" do
+  context 'Geozones' do
 
     scenario "Default whole city" do
       author = create(:user)
@@ -378,7 +420,6 @@ feature 'Proposals' do
       fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
       fill_in 'proposal_video_url', with: 'http://youtube.com'
       fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-      fill_in 'proposal_captcha', with: correct_captcha_text
       check 'proposal_terms_of_service'
 
       click_button 'Create proposal'
@@ -404,7 +445,6 @@ feature 'Proposals' do
       fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
       fill_in 'proposal_video_url', with: 'http://youtube.com'
       fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-      fill_in 'proposal_captcha', with: correct_captcha_text
       check 'proposal_terms_of_service'
 
       select('California', from: 'proposal_geozone_id')
@@ -418,6 +458,100 @@ feature 'Proposals' do
 
   end
 
+  context 'Retired proposals' do
+    scenario 'Retire' do
+      proposal = create(:proposal)
+      login_as(proposal.author)
+
+      visit user_path(proposal.author)
+      within("#proposal_#{proposal.id}") do
+        click_link 'Retire'
+      end
+      expect(current_path).to eq(retire_form_proposal_path(proposal))
+
+      select 'Duplicated', from: 'proposal_retired_reason'
+      fill_in 'proposal_retired_explanation', with: 'There are three other better proposals with the same subject'
+      click_button "Retire proposal"
+
+      expect(page).to have_content "Proposal retired"
+
+      visit proposal_path(proposal)
+
+      expect(page).to have_content proposal.title
+      expect(page).to have_content 'Proposal retired by the author'
+      expect(page).to have_content 'Duplicated'
+      expect(page).to have_content 'There are three other better proposals with the same subject'
+    end
+
+    scenario 'Fields are mandatory' do
+      proposal = create(:proposal)
+      login_as(proposal.author)
+
+      visit retire_form_proposal_path(proposal)
+
+      click_button 'Retire proposal'
+
+      expect(page).to_not have_content 'Proposal retired'
+      expect(page).to have_content "can't be blank", count: 2
+    end
+
+    scenario 'Index do not list retired proposals by default' do
+      create_featured_proposals
+      not_retired = create(:proposal)
+      retired = create(:proposal, retired_at: Time.now)
+
+      visit proposals_path
+
+      expect(page).to have_selector('#proposals .proposal', count: 1)
+      within('#proposals') do
+        expect(page).to have_content not_retired.title
+        expect(page).to_not have_content retired.title
+      end
+    end
+
+    scenario 'Index has a link to retired proposals list' do
+      create_featured_proposals
+      not_retired = create(:proposal)
+      retired = create(:proposal, retired_at: Time.now)
+
+      visit proposals_path
+
+      expect(page).to_not have_content retired.title
+      click_link 'Proposals retired by the author'
+
+      expect(page).to have_content retired.title
+      expect(page).to_not have_content not_retired.title
+    end
+
+    scenario 'Retired proposals index interface elements' do
+      visit proposals_path(retired: 'all')
+
+      expect(page).to_not have_content 'Advanced search'
+      expect(page).to_not have_content 'Categories'
+      expect(page).to_not have_content 'Districts'
+    end
+
+    scenario 'Retired proposals index has links to filter by retired_reason' do
+      unfeasible = create(:proposal, retired_at: Time.now, retired_reason: 'unfeasible')
+      duplicated = create(:proposal, retired_at: Time.now, retired_reason: 'duplicated')
+
+      visit proposals_path(retired: 'all')
+
+      expect(page).to have_content unfeasible.title
+      expect(page).to have_content duplicated.title
+      expect(page).to have_link 'Duplicated'
+      expect(page).to have_link 'Underway'
+      expect(page).to have_link 'Unfeasible'
+      expect(page).to have_link 'Done'
+      expect(page).to have_link 'Other'
+
+      click_link 'Unfeasible'
+
+      expect(page).to have_content unfeasible.title
+      expect(page).to_not have_content duplicated.title
+    end
+  end
+
   scenario 'Update should not be posible if logged user is not the author' do
     proposal = create(:proposal)
     expect(proposal).to be_editable
@@ -425,7 +559,7 @@ feature 'Proposals' do
 
     visit edit_proposal_path(proposal)
     expect(current_path).not_to eq(edit_proposal_path(proposal))
-    expect(current_path).to eq(proposals_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
     expect(page).to have_content 'You do not have permission'
   end
 
@@ -440,7 +574,7 @@ feature 'Proposals' do
     visit edit_proposal_path(proposal)
 
     expect(current_path).not_to eq(edit_proposal_path(proposal))
-    expect(current_path).to eq(proposals_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
     expect(page).to have_content 'You do not have permission'
   end
 
@@ -457,7 +591,6 @@ feature 'Proposals' do
     fill_in 'proposal_description', with: "Let's do something to end child poverty"
     fill_in 'proposal_external_url', with: 'http://rescue.org/refugees'
     fill_in 'proposal_responsible_name', with: 'Isabel Garcia'
-    fill_in 'proposal_captcha', with: correct_captcha_text
 
     click_button "Save changes"
 
@@ -476,26 +609,6 @@ feature 'Proposals' do
     click_button "Save changes"
 
     expect(page).to have_content error_message
-  end
-
-  scenario 'Captcha is required to update a proposal' do
-    proposal = create(:proposal)
-    login_as(proposal.author)
-
-    visit edit_proposal_path(proposal)
-    expect(current_path).to eq(edit_proposal_path(proposal))
-
-    fill_in 'proposal_title', with: "New cool title"
-    fill_in 'proposal_captcha', with: "wrong!"
-    click_button "Save changes"
-
-    expect(page).to_not have_content "Proposal updated successfully."
-    expect(page).to have_content "error"
-
-    fill_in 'proposal_captcha', with: correct_captcha_text
-    click_button "Save changes"
-
-    expect(page).to have_content "Proposal updated successfully."
   end
 
   describe 'Limiting tags shown' do

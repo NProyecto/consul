@@ -11,7 +11,7 @@ feature 'Valuation' do
     visit valuation_root_path
 
     expect(current_path).not_to eq(valuation_root_path)
-    expect(current_path).to eq(proposals_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
     expect(page).to have_content "You do not have permission to access this page"
   end
 
@@ -24,7 +24,20 @@ feature 'Valuation' do
     visit valuation_root_path
 
     expect(current_path).not_to eq(valuation_root_path)
-    expect(current_path).to eq(proposals_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
+    expect(page).to have_content "You do not have permission to access this page"
+  end
+
+  scenario 'Access as manager is not authorized' do
+    create(:manager, user: user)
+    login_as(user)
+    visit root_path
+
+    expect(page).to_not have_link("Valuation")
+    visit valuation_root_path
+
+    expect(current_path).not_to eq(valuation_root_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
     expect(page).to have_content "You do not have permission to access this page"
   end
 

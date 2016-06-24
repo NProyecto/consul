@@ -5,30 +5,36 @@
              i18n_namespace: "debates.index.search_form" %>
 <% end %>
 
-<section role="main">
+<main>
   <div class="wrap row">
     <div id="debates" class="debates-list small-12 medium-9 column">
 
       <div class="small-12 search-results">
         <% if @search_terms || @advanced_search_terms %>
-          <h2 class="margin-top">
+          <h2>
             <%= page_entries_info @debates %>
             <% if !@advanced_search_terms %>
               <%= t("debates.index.search_results", count: @debates.size, search_term: @search_terms) %>
             <% end %>
           </h2>
         <% elsif @tag_filter %>
-          <h2 class="margin-top">
+          <h2>
             <%= page_entries_info @debates %>
             <%= t("debates.index.filter_topic", count: @debates.size, topic: @tag_filter) %>
           </h2>
         <% end %>
       </div>
 
-      <%= render "shared/featured_spending_proposals" %>
+      <% if display_budget_countdown? %>
+        <%= render "shared/budget_counter_banner" %>
+      <% end %>
 
-      <% unless @tag_filter || @search_terms %>
-        <%= render "featured_debates_static" %>
+      <% if has_banners %>
+        <%= render "shared/banner" %>
+      <% end %>
+
+      <% unless @tag_filter || @search_terms || !has_featured? %>
+        <%= render "featured_debates" %>
       <% end %>
 
       <%= render "shared/advanced_search", search_path: debates_path(page: 1) %>
@@ -53,4 +59,4 @@
     </div>
 
   </div>
-</section>
+</main>

@@ -1,9 +1,12 @@
 <%= form_for(@debate) do |f| %>
+
+
   <%= render 'shared/errors', resource: @debate %>
+
   <div class="row">
     <div class="small-12 column">
       <%= f.label :title, t("debates.form.debate_title") %>
-      <%= f.text_field :title, maxlength: Debate.title_max_length, placeholder: t("debates.form.debate_title"), label: false, data: {js_suggest_result: "js_suggest_result", js_suggest: "#js-suggest", js_url: suggest_debates_path}%>        
+      <%= f.text_field :title, maxlength: Debate.title_max_length, placeholder: t("debates.form.debate_title"), label: false, data: {js_suggest_result: "js_suggest_result", js_suggest: "#js-suggest", js_url: suggest_debates_path}%>
     </div>
     <div id="js-suggest"></div>
     <div class="ckeditor small-12 column">
@@ -11,18 +14,30 @@
       <%= f.cktext_area :description, maxlength: Debate.description_max_length, ckeditor: { language: I18n.locale }, label: false %>
     </div>
 
+    <%= f.invisible_captcha :subtitle %>
+
     <div class="small-12 column">
       <%= f.label :tag_list, t("debates.form.tags_label") %>
       <p class="note"><%= t("debates.form.tags_instructions") %></p>
 
-      <%= f.text_field :tag_list, value: @debate.tag_list.to_s,
+      <%= f.text_field :tag_list, value: display_tag_list(@debate),
                         label: false,
                         placeholder: t("debates.form.tags_placeholder") %>
     </div>
+
+    <% if current_user.administrator? %>
+      <div class="small-12 medium-4 column">
+        <%= f.label :comment_kind, t("debates.form.comment_kind_label") %>
+        <p class="note"><%= t("debates.form.comment_kind_instructions") %></p>
+
+        <%= f.select :comment_kind, comment_kind_select_options, { label: false } %>
+      </div>
+    <% end %>
+
     <div class="small-12 column">
       <% if @debate.new_record? %>
         <%= f.label :terms_of_service do %>
-          <%= f.check_box :terms_of_service, label: false %>
+          <%= f.check_box :terms_of_service, title: t('form.accept_terms_title'), label: false %>
           <span class="checkbox">
             <%= t("form.accept_terms",
                 policy: link_to(t("form.policy"), "/privacy", target: "blank"),
@@ -30,10 +45,6 @@
           </span>
         <% end %>
       <% end %>
-    </div>
-
-    <div class="small-12 column">
-      <%= f.simple_captcha input_html: { required: false } %>
     </div>
 
     <div class="actions small-12 column">

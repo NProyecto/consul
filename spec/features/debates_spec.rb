@@ -96,7 +96,6 @@ feature 'Debates' do
     visit new_debate_path
     fill_in 'debate_title', with: 'A title for a debate'
     fill_in 'debate_description', with: 'This is very important because...'
-    fill_in 'debate_captcha', with: correct_captcha_text
     check 'debate_terms_of_service'
 
     click_button 'Start a debate'
@@ -108,24 +107,103 @@ feature 'Debates' do
     expect(page).to have_content I18n.l(Debate.last.created_at.to_date)
   end
 
-  scenario 'Captcha is required for debate creation' do
-    login_as(create(:user))
+  scenario 'Create (predefined tag in url)' do
+    author = create(:user)
+    login_as(author)
+
+    visit new_debate_path(tag: "open-plenary")
+    fill_in_debate
+    click_button 'Start a debate'
+
+    expect(page).to have_content 'Debate created successfully.'
+    within("#tags") do
+      expect(page).to have_content "open-plenary"
+    end
+  end
+
+  scenario 'Create (debate for questions as admin)' do
+    admin = create(:administrator)
+    login_as(admin.user)
+
+    visit new_debate_path(tag: "open-plenary")
+    fill_in_debate
+    select 'Question', from: 'debate_comment_kind'
+    click_button 'Start a debate'
+
+    expect(page).to have_content 'Debate created successfully.'
+    within("#debate_#{Debate.last.id}") do
+      expect(page).to have_content "No questions"
+    end
+
+    within("#comments") do
+      expect(page).to have_content "Questions (0)"
+      expect(page).to have_content "Leave your question"
+      expect(page).to have_button "Publish question"
+    end
+  end
+
+  scenario 'Create (debate for comments as admin)' do
+    admin = create(:administrator)
+    login_as(admin.user)
+
+    visit new_debate_path(tag: "open-plenary")
+    fill_in_debate
+    select 'Comment', from: 'debate_comment_kind'
+    click_button 'Start a debate'
+
+    expect(page).to have_content 'Debate created successfully.'
+    within("#debate_#{Debate.last.id}") do
+      expect(page).to have_content "No comments"
+    end
+
+    within("#comments") do
+      expect(page).to have_content "Comments (0)"
+      expect(page).to have_content "Leave your comment"
+      expect(page).to have_button "Publish comment"
+    end
+  end
+
+  scenario 'Create (debate for questions as user)' do
+    admin = create(:administrator)
+    login_as(admin.user)
+
+    visit new_debate_path(tag: "open-plenary")
+    expect(page).to_not have_css 'debate_comment_kind'
+  end
+
+  scenario 'Create with invisible_captcha honeypot field' do
+    author = create(:user)
+    login_as(author)
 
     visit new_debate_path
-    fill_in 'debate_title', with: "Great title"
-    fill_in 'debate_description', with: 'Very important issue...'
-    fill_in 'debate_captcha', with: "wrongText!"
+    fill_in 'debate_title', with: 'I am a bot'
+    fill_in 'debate_subtitle', with: 'This is a honeypot field'
+    fill_in 'debate_description', with: 'This is the description'
     check 'debate_terms_of_service'
 
-    click_button "Start a debate"
+    click_button 'Start a debate'
 
-    expect(page).to_not have_content "Debate created successfully."
-    expect(page).to have_content "1 error"
+    expect(page.status_code).to eq(200)
+    expect(page.html).to be_empty
+    expect(current_path).to eq(debates_path)
+  end
 
-    fill_in 'debate_captcha', with: correct_captcha_text
-    click_button "Start a debate"
+  scenario 'Create debate too fast' do
+    allow(InvisibleCaptcha).to receive(:timestamp_threshold).and_return(Float::INFINITY)
 
-    expect(page).to have_content "Debate created successfully."
+    author = create(:user)
+    login_as(author)
+
+    visit new_debate_path
+    fill_in 'debate_title', with: 'I am a bot'
+    fill_in 'debate_description', with: 'This is the description'
+    check 'debate_terms_of_service'
+
+    click_button 'Start a debate'
+
+    expect(page).to have_content 'Sorry, that was too quick! Please resubmit'
+
+    expect(current_path).to eq(new_debate_path)
   end
 
   scenario 'Errors on create' do
@@ -144,7 +222,6 @@ feature 'Debates' do
     visit new_debate_path
     fill_in 'debate_title', with: 'Testing an attack'
     fill_in 'debate_description', with: '<p>This is <script>alert("an attack");</script></p>'
-    fill_in 'debate_captcha', with: correct_captcha_text
     check 'debate_terms_of_service'
 
     click_button 'Start a debate'
@@ -163,7 +240,6 @@ feature 'Debates' do
     visit new_debate_path
     fill_in 'debate_title', with: 'Testing auto link'
     fill_in 'debate_description', with: '<p>This is a link www.example.org</p>'
-    fill_in 'debate_captcha', with: correct_captcha_text
     check 'debate_terms_of_service'
 
     click_button 'Start a debate'
@@ -180,7 +256,6 @@ feature 'Debates' do
     visit new_debate_path
     fill_in 'debate_title', with: 'Testing auto link'
     fill_in 'debate_description', with: "<script>alert('hey')</script> <a href=\"javascript:alert('surprise!')\">click me<a/> http://example.org"
-    fill_in 'debate_captcha', with: correct_captcha_text
     check 'debate_terms_of_service'
 
     click_button 'Start a debate'
@@ -213,7 +288,6 @@ feature 'Debates' do
 
       fill_in 'debate_title', with: 'Testing auto link'
       fill_in 'debate_description', with: "<script>alert('hey')</script> <a href=\"javascript:alert('surprise!')\">click me<a/> http://example.org"
-      fill_in 'debate_captcha', with: correct_captcha_text
       check 'debate_terms_of_service'
 
       find('.js-add-tag-link', text: 'Education').click
@@ -232,7 +306,6 @@ feature 'Debates' do
 
       fill_in 'debate_title', with: "Great title"
       fill_in 'debate_description', with: 'Very important issue...'
-      fill_in 'debate_captcha', with: correct_captcha_text
       check 'debate_terms_of_service'
 
       fill_in 'debate_tag_list', with: 'Refugees, Solidarity'
@@ -250,7 +323,6 @@ feature 'Debates' do
 
       fill_in 'debate_title', with: 'A test of dangerous strings'
       fill_in 'debate_description', with: 'A description suitable for this test'
-      fill_in 'debate_captcha', with: correct_captcha_text
       check 'debate_terms_of_service'
 
       fill_in 'debate_tag_list', with: 'user_id=1, &a=3, <script>alert("hey");</script>'
@@ -272,7 +344,7 @@ feature 'Debates' do
 
     visit edit_debate_path(debate)
     expect(current_path).not_to eq(edit_debate_path(debate))
-    expect(current_path).to eq(proposals_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
     expect(page).to have_content "You do not have permission to carry out the action 'edit' on debate."
   end
 
@@ -287,7 +359,7 @@ feature 'Debates' do
     visit edit_debate_path(debate)
 
     expect(current_path).not_to eq(edit_debate_path(debate))
-    expect(current_path).to eq(proposals_path)
+    expect(current_path).to eq(welcome_spending_proposals_path)
     expect(page).to have_content 'You do not have permission to'
   end
 
@@ -300,7 +372,6 @@ feature 'Debates' do
 
     fill_in 'debate_title', with: "End child poverty"
     fill_in 'debate_description', with: "Let's do something to end child poverty"
-    fill_in 'debate_captcha', with: correct_captcha_text
 
     click_button "Save changes"
 
@@ -318,26 +389,6 @@ feature 'Debates' do
     click_button "Save changes"
 
     expect(page).to have_content error_message
-  end
-
-  scenario 'Captcha is required to update a debate' do
-    debate = create(:debate)
-    login_as(debate.author)
-
-    visit edit_debate_path(debate)
-    expect(current_path).to eq(edit_debate_path(debate))
-
-    fill_in 'debate_title', with: "New title"
-    fill_in 'debate_captcha', with: "wrong!"
-    click_button "Save changes"
-
-    expect(page).to_not have_content "Debate updated successfully."
-    expect(page).to have_content "error"
-
-    fill_in 'debate_captcha', with: correct_captcha_text
-    click_button "Save changes"
-
-    expect(page).to have_content "Debate updated successfully."
   end
 
   describe 'Limiting tags shown' do
@@ -1006,6 +1057,67 @@ feature 'Debates' do
       within('div#js-suggest') do
         expect(page).to_not have_content ('You are seeing')
       end
+    end
+  end
+
+  scenario 'Mark/Unmark a debate as featured' do
+    admin = create(:administrator)
+    login_as(admin.user)
+
+    debate = create(:debate)
+
+    visit debates_path
+    within('#debates') do
+      expect(page).to_not have_content 'Featured'
+    end
+
+    click_link debate.title
+
+    click_link 'Featured'
+
+    visit debates_path
+
+    within('#debates') do
+      expect(page).to have_content 'Featured'
+    end
+
+    within('#featured-debates') do
+      expect(page).to have_content debate.title
+    end
+
+    visit debate_path(debate)
+    click_link 'Unmark featured'
+
+    within('#debates') do
+      expect(page).to_not have_content 'Featured'
+    end
+  end
+
+
+  scenario 'Index include featured debates' do
+    admin = create(:administrator)
+    login_as(admin.user)
+
+    debate1 = create(:debate, featured_at: Time.now)
+    debate2 = create(:debate)
+
+    visit debates_path
+    within('#debates') do
+      expect(page).to have_content("Featured")
+    end
+  end
+
+
+  scenario 'Index do not show featured debates if none is marked as featured' do
+    admin = create(:administrator)
+    login_as(admin.user)
+
+    debate1 = create(:debate)
+    debate2 = create(:debate)
+
+    visit debates_path
+    within('#debates') do
+      expect(page).to_not have_content("Featured")
     end
   end
 end

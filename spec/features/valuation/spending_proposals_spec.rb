@@ -5,6 +5,7 @@ feature 'Valuation spending proposals' do
   background do
     @valuator = create(:valuator, user: create(:user, username: 'Rachel', email: 'rachel@valuators.org'))
     login_as(@valuator.user)
+    Setting['feature.spending_proposal_features.valuation_allowed'] = true
   end
 
   scenario 'Disabled with a feature flag' do
@@ -35,6 +36,21 @@ feature 'Valuation spending proposals' do
 
     expect(page).to_not have_content(spending_proposal1.title)
     expect(page).to_not have_content(spending_proposal2.title)
+  end
+
+  scenario 'Index orders spending proposals by votes' do
+    spending_proposal10 = create(:spending_proposal, cached_votes_up: 10)
+    spending_proposal100 = create(:spending_proposal, cached_votes_up: 100)
+    spending_proposal1 = create(:spending_proposal, cached_votes_up: 1)
+
+    spending_proposal1.valuators << @valuator
+    spending_proposal10.valuators << @valuator
+    spending_proposal100.valuators << @valuator
+
+    visit valuation_spending_proposals_path
+
+    expect(spending_proposal100.title).to appear_before(spending_proposal10.title)
+    expect(spending_proposal10.title).to appear_before(spending_proposal1.title)
   end
 
   scenario 'Index shows assignments info' do
@@ -76,17 +92,17 @@ feature 'Valuation spending proposals' do
     expect(page).to have_link("Realocate visitors")
     expect(page).to have_link("Destroy the city")
 
-    select "District 9", from: "geozone_id"
+    click_link "District 9", exact: false
 
     expect(page).to have_link("Realocate visitors")
     expect(page).to_not have_link("Destroy the city")
 
-    select "All city", from: "geozone_id"
+    click_link "All city", exact: false
 
     expect(page).to have_link("Destroy the city")
     expect(page).to_not have_link("Realocate visitors")
 
-    select "All zones", from: "geozone_id"
+    click_link "All zones", exact: false
     expect(page).to have_link("Realocate visitors")
     expect(page).to have_link("Destroy the city")
   end
@@ -145,6 +161,7 @@ feature 'Valuation spending proposals' do
                                   feasible_explanation: 'It is impossible',
                                   administrator: administrator)
       spending_proposal.valuators << [@valuator, valuator2]
+      create(:vote, votable: spending_proposal)
 
       visit valuation_spending_proposals_path
 
@@ -159,6 +176,7 @@ feature 'Valuation spending proposals' do
       expect(page).to have_content('Not feasible')
       expect(page).to have_content('It is impossible')
       expect(page).to have_content('Ana (ana@admins.org)')
+      expect(page).to have_content("Votes: 1")
 
       within('#assigned_valuators') do
         expect(page).to have_content('Rachel (rachel@valuators.org)')
@@ -288,6 +306,60 @@ feature 'Valuation spending proposals' do
       expect(find "#spending_proposal_feasible_nil").to be_checked
     end
 
+    scenario 'Feasibility selection makes proper fields visible', :js do
+      feasible_true_fields  = ['Price (€)','Cost during the first year (€)','Price explanation','Time scope']
+      feasible_false_fields = ['Feasibility explanation']
+      feasible_any_fields   = ['Valuation finished','Internal comments']
+      feasible_nil_fields   = feasible_true_fields + feasible_false_fields + feasible_any_fields
+
+      visit edit_valuation_spending_proposal_path(@spending_proposal)
+
+      expect(find "#spending_proposal_feasible_nil").to be_checked
+
+      feasible_nil_fields.each do |field|
+        expect(page).to have_content(field)
+      end
+
+      choose 'spending_proposal_feasible_true'
+
+      feasible_false_fields.each do |field|
+        expect(page).to_not have_content(field)
+      end
+
+      (feasible_true_fields + feasible_any_fields).each do |field|
+        expect(page).to have_content(field)
+      end
+
+      choose 'spending_proposal_feasible_false'
+
+      feasible_true_fields.each do |field|
+        expect(page).to_not have_content(field)
+      end
+
+      (feasible_false_fields + feasible_any_fields).each do |field|
+        expect(page).to have_content(field)
+      end
+
+      click_button 'Save changes'
+
+      visit edit_valuation_spending_proposal_path(@spending_proposal)
+
+      expect(find "#spending_proposal_feasible_false").to be_checked
+      feasible_true_fields.each do |field|
+        expect(page).to_not have_content(field)
+      end
+
+      (feasible_false_fields + feasible_any_fields).each do |field|
+        expect(page).to have_content(field)
+      end
+
+      choose 'spending_proposal_feasible_nil'
+
+      feasible_nil_fields.each do |field|
+        expect(page).to have_content(field)
+      end
+    end
+
     scenario 'Finish valuation' do
       visit valuation_spending_proposal_path(@spending_proposal)
       click_link 'Edit dossier'
@@ -319,4 +391,85 @@ feature 'Valuation spending proposals' do
     end
   end
 
+  context "Summary" do
+
+    background do
+      admin = create(:administrator)
+      login_as(admin.user)
+    end
+
+    scenario "Summary table" do
+      scarlett  = create(:valuator)
+      john = create(:valuator)
+
+      finished_and_feasible1 = create(:spending_proposal, valuation_finished: true, feasible: true, price: '3000000')
+      finished_and_feasible2 = create(:spending_proposal, valuation_finished: true, feasible: true, price: '7000000')
+
+      finished_and_unfeasible1 = create(:spending_proposal, valuation_finished: true, feasible: false)
+      finished_and_unfeasible2 = create(:spending_proposal, valuation_finished: true, feasible: false)
+
+      in_evaluation1 = create(:spending_proposal, feasible: true, valuation_finished: false)
+      in_evaluation2 = create(:spending_proposal, feasible: true, valuation_finished: false)
+
+      finished_and_feasible1.valuators << scarlett
+      finished_and_feasible2.valuators << scarlett
+
+      finished_and_unfeasible1.valuators << john
+      finished_and_unfeasible2.valuators << john
+
+      in_evaluation1.valuators << scarlett
+      in_evaluation2.valuators << john
+
+      visit admin_spending_proposals_path
+
+      click_link "Valuator summary"
+
+      expect(page).to have_content "Valuator summary for investment projects"
+
+      within("#valuator_#{scarlett.id}") do
+        expect(page).to have_css(".finished-and-feasible-count", text: '2')
+        expect(page).to have_css(".finished-and-unfeasible-count", text: '0')
+        expect(page).to have_css(".finished-count", text: '2')
+        expect(page).to have_css(".in-evaluation-count", text: '1')
+        expect(page).to have_css(".total-count", text: '3')
+        expect(page).to have_css(".total-price", text: "$10,000,000.00")
+      end
+
+      within("#valuator_#{john.id}") do
+        expect(page).to have_css(".finished-and-feasible-count", text: '0')
+        expect(page).to have_css(".finished-and-unfeasible-count", text: '2')
+        expect(page).to have_css(".finished-count", text: '2')
+        expect(page).to have_css(".in-evaluation-count", text: '1')
+        expect(page).to have_css(".total-count", text: '3')
+        expect(page).to have_css(".total-price", text: '$0.00')
+      end
+    end
+
+    scenario "Order by investment project count" do
+      isabel = create(:valuator)
+      john = create(:valuator)
+      scarlett  = create(:valuator)
+
+      3.times { create(:spending_proposal, valuators: [scarlett])}
+      1.times { create(:spending_proposal, valuators: [john])}
+      2.times { create(:spending_proposal, valuators: [isabel])}
+
+      visit admin_spending_proposals_path
+      click_link "Valuator summary"
+
+      expect(scarlett.email).to appear_before(isabel.email)
+      expect(isabel.email).to appear_before(john.email)
+    end
+
+    scenario "Back link" do
+      visit admin_spending_proposals_path
+
+      click_link "Valuator summary"
+      expect(page).to have_content "Valuator summary for investment projects"
+
+      click_link "Go back"
+      expect(page).to have_content "Investment projects for participatory budgeting"
+    end
+
+  end
 end

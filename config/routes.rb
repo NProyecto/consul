@@ -36,6 +36,8 @@ Rails.application.routes.draw do
       post :vote
       put :flag
       put :unflag
+      put :mark_featured
+      put :unmark_featured
     end
     collection do
       get :map
@@ -43,12 +45,17 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :answers, only: [:index, :new, :create]
+
   resources :proposals do
     member do
       post :vote
       post :vote_featured
+      get :vote
       put :flag
       put :unflag
+      get :retire_form
+      patch :retire
     end
     collection do
       get :map
@@ -66,28 +73,42 @@ Rails.application.routes.draw do
   end
 
   scope '/participatory_budget' do
-    resources :spending_proposals, only: [:index, :new, :create, :show], path: 'investment_projects'
+    resources :spending_proposals, only: [:index, :show, :destroy], path: 'investment_projects' do #[:new, :create] temporary disabled
+      get :welcome, on: :collection
+      post :vote, on: :member
+    end
+
+    resource :ballot, only: [:show] do
+      resources :ballot_lines, only: [:create, :destroy], shallow: true
+    end
+    get '/ballot/ballot_lines/create', to: 'ballot_lines#create', as: :create_ballot_line
+  end
+
+  resources :open_plenaries, only: [] do
+    get :results, on: :collection
   end
 
   resources :stats, only: [:index]
 
   resources :legislations, only: [:show]
 
-  resources :annotations, only: [:index, :show] do
-    collection do
-      get :search
-    end
+  resources :annotations do
+    get :search, on: :collection
   end
 
-  resources :users, only: [:show]
+  resources :users, only: [:show] do
+    resources :direct_messages, only: [:new, :create, :show]
+  end
 
   resource :account, controller: "account", only: [:show, :update, :delete] do
-    collection { get :erase }
+    get :erase, on: :collection
   end
 
   resources :notifications, only: [:index, :show] do
-    collection { put :mark_all_as_read }
+    put :mark_all_as_read, on: :collection
   end
+
+  resources :proposal_notifications, only: [:new, :create, :show]
 
   resource :verification, controller: "verification", only: [:show]
 
@@ -103,7 +124,7 @@ Rails.application.routes.draw do
   namespace :admin do
     root to: "dashboard#index"
     resources :organizations, only: :index do
-      collection { get :search }
+      get :search, on: :collection
       member do
         put :verify
         put :reject
@@ -136,6 +157,13 @@ Rails.application.routes.draw do
         patch :assign_admin
         patch :assign_valuators
       end
+
+      get :summary, on: :collection
+      get :results, on: :collection
+    end
+
+    resources :banners, only: [:index, :new, :create, :edit, :update, :destroy] do
+      collection { get :search}
     end
 
     resources :comments, only: :index do
@@ -147,24 +175,39 @@ Rails.application.routes.draw do
 
     resources :tags, only: [:index, :create, :update, :destroy]
     resources :officials, only: [:index, :edit, :update, :destroy] do
-      collection { get :search}
+      get :search, on: :collection
     end
 
     resources :settings, only: [:index, :update]
     resources :moderators, only: [:index, :create, :destroy] do
-      collection { get :search }
+      get :search, on: :collection
     end
 
     resources :valuators, only: [:index, :create] do
-      collection { get :search }
+      get :search, on: :collection
+      get :summary, on: :collection
+    end
+
+    resources :managers, only: [:index, :create, :destroy] do
+      get :search, on: :collection
     end
 
     resources :verifications, controller: :verifications, only: :index do
-      collection { get :search}
+      get :search, on: :collection
     end
 
     resource :activity, controller: :activity, only: :show
-    resource :stats, only: :show
+    resources :newsletters, only: :index do
+      get :users, on: :collection
+    end
+
+    resource :stats, only: :show do
+      get :spending_proposals, on: :collection
+      get :graph, on: :member
+      get :proposal_notifications, on: :collection
+      get :direct_messages, on: :collection
+      get :redeemable_codes, on: :collection
+    end
 
     namespace :api do
       resource :stats, only: :show
@@ -182,30 +225,18 @@ Rails.application.routes.draw do
     end
 
     resources :debates, only: :index do
-      member do
-        put :hide
-      end
-      collection do
-        put :moderate
-      end
+      put :hide, on: :member
+      put :moderate, on: :collection
     end
 
     resources :proposals, only: :index do
-      member do
-        put :hide
-      end
-      collection do
-        put :moderate
-      end
+      put :hide, on: :member
+      put :moderate, on: :collection
     end
 
     resources :comments, only: :index do
-      member do
-        put :hide
-      end
-      collection do
-        put :moderate
-      end
+      put :hide, on: :member
+      put :moderate, on: :collection
     end
   end
 
@@ -213,9 +244,7 @@ Rails.application.routes.draw do
     root to: "spending_proposals#index"
 
     resources :spending_proposals, only: [:index, :show, :edit] do
-      member do
-        patch :valuate
-      end
+      patch :valuate, on: :member
     end
   end
 
@@ -223,9 +252,7 @@ Rails.application.routes.draw do
     root to: "dashboard#index"
 
     resources :document_verifications, only: [:index, :new, :create] do
-      collection do
-        post :check
-      end
+      post :check, on: :collection
     end
 
     resources :email_verifications, only: [:new, :create]
@@ -233,30 +260,29 @@ Rails.application.routes.draw do
     resources :users, only: [:new, :create] do
       collection do
         delete :logout
+        delete :erase
       end
     end
 
-    get 'sign_in', to: 'sessions#create'
+    resource :account, controller: "account", only: [:show]
+
+    get 'sign_in', to: 'sessions#create', as: :sign_in
 
     resource :session, only: [:create, :destroy]
     resources :proposals, only: [:index, :new, :create, :show] do
-      member do
-        post :vote
-      end
-
-      collection do
-        get :print
-      end
+      post :vote, on: :member
+      get :print, on: :collection
     end
 
-    resources :spending_proposals, only: [:new, :create, :show]
+    resources :spending_proposals, only: [:index, :show] do #[:new, :create] temporary disabled
+      post :vote, on: :member
+      get :print, on: :collection
+    end
+
   end
 
-  resources :survey_answers, only: [:new, :create]
-
-  resources :open_answers, only: [:show, :index]
-
-  get "encuesta-plaza-espana", to: "survey_answers#new", as: :encuesta_plaza_espana
+  resources :forums, only: [:index, :create, :show]
+  resources :representatives, only: [:create, :destroy]
 
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
@@ -264,8 +290,18 @@ Rails.application.routes.draw do
 
   mount Tolk::Engine => '/translate', :as => 'tolk'
 
-  get "ordenanza-de-transparencia", to: "legislations#show", id: 1, as: :ordenanza_transparencia
-  get '/blog' => redirect("http://diario.madrid.es/participa/")
-  get 'participatory_budget', to: 'spending_proposals#index', as: 'participatory_budget'
+  get 'encuesta-plaza-espana' => redirect('/encuesta-plaza-espana-resultados')
+  get '/blog' => redirect('http://diario.madrid.es/participa/')
+  get 'participatory_budget', to: 'spending_proposals#welcome', as: 'participatory_budget'
+  get 'participatory_budget/select_district', to: 'spending_proposals#select_district', as: 'select_district'
+  get 'delegacion', to: 'forums#index', as: 'delegation'
+  get 'plenoabierto', to: 'pages#show', id: 'processes_open_plenary'
+  get 'derechos-humanos', to: 'pages#show', id: 'processes/human_rights'
+  get 'processes/human_rights_question_1', to: 'pages#show', id: 'processes/human_rights_question_1'
+  get 'processes/human_rights_question_2', to: 'pages#show', id: 'processes/human_rights_question_2'
+  get 'processes/human_rights_question_3', to: 'pages#show', id: 'processes/human_rights_question_3'
+  get 'noticias', to: 'pages#show', id: 'news'
+  get 'participatory_budget/in_two_minutes', to: 'pages#show', id: 'participatory_budget/in_two_minutes'
+
   resources :pages, path: '/', only: [:show]
 end

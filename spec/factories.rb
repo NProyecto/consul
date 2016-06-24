@@ -1,5 +1,4 @@
 FactoryGirl.define do
-
   sequence(:document_number) { |n| "#{n.to_s.rjust(8, '0')}X" }
 
   factory :user do
@@ -98,6 +97,7 @@ FactoryGirl.define do
   factory :debate do
     sequence(:title)     { |n| "Debate #{n} title" }
     description          'Debate description'
+    comment_kind         'comment'
     terms_of_service     '1'
     association :author, factory: :user
 
@@ -137,7 +137,7 @@ FactoryGirl.define do
 
   factory :proposal do
     sequence(:title)     { |n| "Proposal #{n} title" }
-    summary              'In summary, what we want is...'
+    sequence(:summary)   { |n| "In summary, what we want is... #{n}" }
     description          'Proposal description'
     question             'Proposal question'
     external_url         'http://external_documention.es'
@@ -182,15 +182,31 @@ FactoryGirl.define do
 
   factory :redeemable_code do
     sequence(:token) { |n| "token#{n}" }
-    geozone
   end
 
   factory :spending_proposal do
     sequence(:title)     { |n| "Spending Proposal #{n} title" }
     description          'Spend money on this'
+    feasible_explanation 'This proposal is viable because...'
     external_url         'http://external_documention.org'
     terms_of_service     '1'
     association :author, factory: :user
+
+    trait :with_confidence_score do
+      before(:save) { |sp| sp.calculate_confidence_score }
+    end
+
+    trait :feasible do
+      feasible true
+    end
+
+    trait :unfeasible do
+      feasible false
+    end
+
+    trait :finished do
+      valuation_finished true
+    end
   end
 
   factory :vote do
@@ -260,6 +276,10 @@ FactoryGirl.define do
     user
   end
 
+  factory :manager do
+    user
+  end
+
   factory :organization do
     user
     responsible_name "Johnny Utah"
@@ -272,13 +292,6 @@ FactoryGirl.define do
     trait :rejected do
       rejected_at Time.now
     end
-  end
-
-  factory :open_answer do
-  end
-
-  factory :survey_answer do
-    user
   end
 
   factory :tag, class: 'ActsAsTaggableOn::Tag' do
@@ -322,6 +335,43 @@ FactoryGirl.define do
   factory :geozone do
     sequence(:name) { |n| "District #{n}" }
     census_code { '01' }
+  end
+
+  factory :forum do
+    sequence(:name) { |n| "Forum #{n}" }
+    user
+  end
+
+  factory :ballot do
+    user
+  end
+
+  factory :ballot_line do
+    ballot
+    spending_proposal { FactoryGirl.build(:spending_proposal, feasible: true) }
+  end
+
+  factory :banner do
+    sequence(:title) { |n| "Banner title #{n}" }
+    sequence(:description)  { |n| "This is the text of Banner #{n}" }
+    style {["banner-style-one", "banner-style-two", "banner-style-three"].sample}
+    image {["banner.banner-img-one", "banner.banner-img-two", "banner.banner-img-three"].sample}
+    target_url {["/proposals", "/debates" ].sample}
+    post_started_at Time.now - 7.days
+    post_ended_at Time.now + 7.days
+  end
+
+  factory :proposal_notification do
+    sequence(:title) { |n| "Thank you for supporting my proposal #{n}" }
+    sequence(:body) { |n| "Please let others know so we can make it happen #{n}" }
+    proposal
+  end
+
+  factory :direct_message do
+    title    "Hey"
+    body     "How are You doing?"
+    association :sender,   factory: :user
+    association :receiver, factory: :user
   end
 
 end

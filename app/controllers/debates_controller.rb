@@ -11,12 +11,18 @@ class DebatesController < ApplicationController
 
   feature_flag :debates
 
+  invisible_captcha only: [:create, :update], honeypot: :subtitle
+
   has_orders %w{hot_score confidence_score created_at relevance}, only: :index
   has_orders %w{most_voted newest oldest}, only: :show
 
   load_and_authorize_resource
   helper_method :resource_model, :resource_name
   respond_to :html, :js
+
+  def index_customization
+     @featured_debates = @debates.featured
+  end
 
   def show
     super
@@ -28,10 +34,20 @@ class DebatesController < ApplicationController
     set_debate_votes(@debate)
   end
 
+  def unmark_featured
+    @debate.update_attribute(:featured_at, nil)
+    redirect_to request.query_parameters.merge(action: :index)
+  end
+
+  def mark_featured
+    @debate.update_attribute(:featured_at, Time.now)
+    redirect_to request.query_parameters.merge(action: :index)
+  end
+
   private
 
     def debate_params
-      params.require(:debate).permit(:title, :description, :tag_list, :terms_of_service, :captcha, :captcha_key)
+      params.require(:debate).permit(:title, :description, :tag_list, :comment_kind, :terms_of_service)
     end
 
     def resource_model

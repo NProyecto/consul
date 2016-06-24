@@ -41,9 +41,14 @@
 //= require advanced_search
 //= require registration_form
 //= require forms
-//= require survey_answers
 //= require suggest
 //= require forms
+//= require tracks
+//= require valuation_spending_proposal_form
+//= require embed_video
+//= require fixed_bar
+//= require banners
+//= require countdown
 
 var initialize_modules = function() {
   App.Comments.initialize();
@@ -58,9 +63,14 @@ var initialize_modules = function() {
   App.Annotatable.initialize();
   App.AdvancedSearch.initialize();
   App.RegistrationForm.initialize();
-  App.SurveyAnswers.initialize();
   App.Suggest.initialize();
   App.Forms.initialize();
+  App.Tracks.initialize();
+  App.ValuationSpendingProposalForm.initialize();
+  App.EmbedVideo.initialize();
+  App.FixedBar.initialize();
+  App.Banners.initialize();
+  App.Countdown.initialize();
 };
 
 $(function(){

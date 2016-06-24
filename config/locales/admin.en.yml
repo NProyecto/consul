@@ -7,6 +7,41 @@ en:
       hide: Hide
       hide_author: Hide author
       restore: Restore
+      mark_featured: Featured
+      unmark_featured: Unmark featured
+    banners:
+      index:
+        title: Banners
+        create: Create banner
+        edit: Edit banner
+        delete: Delete banner
+        filters:
+          all: All
+          with_active: Active
+          with_inactive: Inactive
+      banner:
+        title: Title
+        description:  Description
+        target_url:  Link
+        style: Style
+        image: Image
+        post_started_at: Post started at
+        post_ended_at: Post ended at
+      edit:
+        back: Back
+        editing: Edit banner
+        form:
+          submit_button: Save changes
+      errors:
+        form:
+      errors:
+        form:
+          error:
+            one: "prevented this banner from being saved"
+            other: 'prevented this banner from being saved'
+      new:
+        back: Back
+        creating: Create banner
     activity:
       show:
         action: Action
@@ -15,6 +50,7 @@ en:
           hide: Hidden
           restore: Restored
         by: Moderated by
+        content: Content
         filter: Show
         filters:
           all: All
@@ -36,6 +72,7 @@ en:
         title: Hidden comments
     dashboard:
       index:
+        back: Go back to
         title: Administration
     debates:
       index:
@@ -45,15 +82,29 @@ en:
           with_confirmed_hide: Confirmed
           without_confirmed_hide: Pending
         title: Hidden debates
+    managers:
+      index:
+        title: Managers
+      manager:
+        add: Add
+        delete: Delete
+      search:
+        email_placeholder: Search user by email
+        search: Search
+        user_not_found: User not found
     menu:
       activity: Moderator activity
+      admin: Admin menu
+      banner: Manage banners
       debate_topics: Debate topics
       hidden_comments: Hidden comments
       hidden_debates: Hidden debates
       hidden_proposals: Hidden proposals
       hidden_users: Hidden users
       incomplete_verifications: Incomplete verifications
+      managers: Managers
       moderators: Moderators
+      newsletter: Newsletters
       valuators: Valuators
       officials: Officials
       organizations: Organisations
@@ -70,18 +121,32 @@ en:
         email_placeholder: Search user by email
         search: Search
         user_not_found: User not found
+    newsletters:
+      index:
+        title: Newsletters
+        button: Download zip with users list
     valuators:
       index:
         title: Valuators
       valuator:
-        add: Add
+        description_placeholder: 'Description (optional)'
+        user_found: User found
+        add: Add to valuators
       search:
         email_placeholder: Search user by email
         search: Search
         user_not_found: User not found
+      summary:
+        title: Valuator summary for investment projects
+        valuator_name: Valuator
+        finished_and_feasible_count: Finished and feasible
+        finished_and_unfeasible_count: Finished and unfeasible
+        finished_count: Finished
+        in_evaluation_count: In evaluation
+        total_count: Total
+        cost: Cost
     officials:
       edit:
-        back: Back
         destroy: Remove 'Official' status
         title: 'Officials: Edit user'
       flash:
@@ -107,9 +172,9 @@ en:
           pending: Pending
           rejected: Rejected
           verified: Verified
-        hidden_count:
-          one: There is also one organisation with no users or with a hidden user
-          other: There are %{count} organisations with no users or with a hidden user
+        hidden_count_html:
+          one: There is also <strong>one organisation</strong> with no users or with a hidden user.
+          other: There are <strong>%{count} organisations</strong> with no users or with a hidden user.
         reject: Reject
         rejected: Rejected
         search: Search
@@ -131,6 +196,8 @@ en:
       flash:
         updated: Value updated
       index:
+        banners: Estilos de banners
+        banner_imgs: Imágenes para los banners
         title: Configuration settings
         update_setting: Update
         feature_flags: Features
@@ -143,6 +210,9 @@ en:
       proposal_search:
         button: Search
         placeholder: Search proposals by title, code, description or question
+      spending_proposal_search:
+        button: Search
+        placeholder: Search spending proposals by title or description
       user_search:
         button: Search
         placeholder: Search user by name or email'
@@ -150,23 +220,34 @@ en:
       index:
         geozone_filter_all: All zones
         administrator_filter_all: All administrators
+        valuator_filter_all: All valuators
         tags_filter_all: All tags
+        max_per_geozone: Max per geozone
+        max_for_no_geozone: Max for city-wide
         filters:
           valuation_open: Open
           without_admin: Without assigned admin
           managed: Managed
           valuating: Under valuation
           valuation_finished: Valuation finished
+          all: All
         title: Investment projects for participatory budgeting
         assigned_admin: Assigned administrator
         no_admin_assigned: No admin assigned
         no_valuators_assigned: No valuators assigned
+        summary_link: "Investment project summary"
+        valuator_summary_link: "Valuator summary"
+        feasibility:
+          feasible: "Feasible (%{price})"
+          not_feasible: "Not feasible"
+          undefined: "Undefined"
       show:
         assigned_admin: Assigned administrator
         assigned_valuators: Assigned valuators
         back: Back
         classification: Clasification
         heading: "Investment project %{id}"
+        edit: Edit
         edit_classification: Edit classification
         association_name: Association
         by: By
@@ -183,26 +264,78 @@ en:
         tags: Tags
         tags_placeholder: "Write the tags you want separated by commas (,)"
         undefined: Undefined
+      results:
+        title: Current final voting ranking
+        spending_proposal: Proposal title
+        ballot_lines_count: Times selected
+        hide_discarded_link: Hide discarded
+        show_all_link: Show all
+        price: Cost
+        amount_available: Available budget
+      summary:
+        title: Summary for investment projects
+        geozone_name: Scope
+        finished_and_feasible_count: Finished and feasible
+        finished_and_unfeasible_count: Finished and unfeasible
+        finished_count: Finished
+        in_evaluation_count: In evaluation
+        total_count: Total
+        cost_for_geozone: Cost
     stats:
       show:
         stats_title: Stats
+        participatory_budget: Participatory Budget
+        direct_messages: Direct messages
+        proposal_notifications: Proposal notifications
+        redeemable_codes: Redeemable codes
         summary:
+          ballot_line_votes: Votes in investment projects
+          ballot_votes: Budgets voted
           comment_votes: Comment votes
           comments: Comments
           debate_votes: Debate votes
           debates: Debates
-          open_answer_votes: Open answer votes
           proposal_votes: Proposal votes
           proposals: Proposals
-          surveys: Surveys completed
+          spending_proposal_votes: Investment project votes
+          spending_proposals: Investment projects
           unverified_users: Unverified users
           user_level_three: Level three users
           user_level_two: Level two users
           users: Total users
           verified_users: Verified users
+          verified_users_who_didnt_vote_proposals: Verified users who didn't votes proposals
           visits: Visits
           votes: Total votes
-        visits_title: Visits
+      graph:
+        debate_created: Debates
+        spending_proposals: Investment projects
+        visit: Visits
+        level_2_user: Level 2 users
+        proposal_created: Citizen proposals
+        participatory_budget: Participatory Budget
+        user_voted_budgets: Users that have voted
+      spending_proposals:
+        title: Participatory Budgets
+        districts: District
+        users: Users
+        users_city_total: Users who voted for city-wide proposals
+        users_district_total: Users who voted for district-wide proposals
+        users_city_only: Users who voted ONLY for city-wide proposals
+        users_district_only: Users who voted ONLY for district-wide proposals
+        users_both_total:  Users who voted for BOTH
+      direct_messages:
+        title: Direct messages
+        total: Total
+        users_who_have_sent_message: Users that have sent a private message
+      proposal_notifications:
+        title: Proposal notifications
+        total: Total
+        proposals_with_notifications: Proposals with notifications
+      reedemable_codes:
+        title: Redeemable codes
+        total: Total
+        campaign: After sending 400.000 letters
     tags:
       create: Create Topic
       destroy: Destroy Topic
@@ -222,11 +355,10 @@ en:
           without_confirmed_hide: Pending
         title: Hidden users
       show:
-        back: Back
         email: 'Email:'
         hidden_at: 'Hidden at:'
         registered_at: 'Registered at:'
-        title: Activity of user %{user}
+        title: Activity of user (%{user})
     verifications:
       index:
         phone_not_given: Phone not given

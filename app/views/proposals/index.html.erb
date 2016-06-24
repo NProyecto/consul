@@ -5,27 +5,35 @@
              i18n_namespace: "proposals.index.search_form" %>
 <% end %>
 
-<section role="main">
+<main>
   <div class="wrap row">
     <div id="proposals" class="proposals-list small-12 medium-9 column">
 
       <div class="small-12 search-results">
         <% if @search_terms || @advanced_search_terms %>
-          <h2 class="margin-top">
+          <h2>
             <%= page_entries_info @proposals %>
             <% if !@advanced_search_terms %>
               <%= t("proposals.index.search_results", count: @proposals.size, search_term: @search_terms) %>
             <% end %>
           </h2>
         <% elsif @tag_filter %>
-          <h2 class="margin-top">
+          <h2>
             <%= page_entries_info @proposals %>
             <%= t("proposals.index.filter_topic", count: @proposals.size, topic: @tag_filter) %>
           </h2>
+        <% elsif params[:retired].present? %>
+          <h2><%= t("proposals.index.retired_proposals") %>
         <% end %>
       </div>
 
-      <%= render "shared/featured_spending_proposals" %>
+      <% if display_budget_countdown? %>
+        <%= render "shared/budget_counter_banner" %>
+      <% end %>
+
+      <% if has_banners %>
+        <%= render "shared/banner" %>
+      <% end %>
 
       <% if @featured_proposals.present? %>
         <div id="featured-proposals" class="row featured-proposals">
@@ -40,12 +48,12 @@
         </div>
       <% end %>
 
-      <%= render "shared/advanced_search", search_path: proposals_path(page: 1)%>
+      <%= render("shared/advanced_search", search_path: proposals_path(page: 1)) unless params[:retired].present? %>
 
       <%= render 'shared/order_links', i18n_namespace: "proposals.index" %>
 
       <div class="show-for-small-only">
-        <%= link_to t("proposals.index.start_proposal"), page_path('proposal_type'), class: 'button expanded' %>
+        <%= link_to t("proposals.index.start_proposal"), new_proposal_path, class: 'button expanded' %>
       </div>
 
       <%= render partial: 'proposals/proposal', collection: @proposals %>
@@ -54,13 +62,16 @@
 
     <div class="small-12 medium-3 column">
       <aside class="margin-bottom">
-        <%= link_to t("proposals.index.start_proposal"), page_path('proposal_type'), class: 'button expanded' %>
-        <%= render "shared/tag_cloud", taggable: 'proposal' %>
-        <%= render 'categories' %>
-        <%= render 'geozones' %>
-        <%= render 'popular' %>
+        <%= link_to t("proposals.index.start_proposal"), new_proposal_path, class: 'button expanded' %>
+        <% if params[:retired].blank? %>
+            <%= render "shared/tag_cloud", taggable: 'proposal' %>
+            <%= render 'categories' %>
+            <%= render 'geozones' %>
+            <%= render 'popular' %>
+          <% end %>
+          <%= render 'retired' %>
       </aside>
     </div>
 
   </div>
-</section>
+</main>

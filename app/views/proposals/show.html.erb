@@ -10,22 +10,36 @@
   <section class="proposal-show">
     <div id="<%= dom_id(@proposal) %>" class="row">
       <div class="small-12 medium-9 column">
-        <%= link_to :back, class: "back" do %>
-          <i class="icon-angle-left"></i>
-          <%= t("proposals.show.back_link") %>
+        <%= render "shared/back_link", path: @proposal.proceeding? ? page_path('derechos-humanos') : proposals_path %>
+
+        <% if author_of?(@proposal, current_user) && !@proposal.proceeding? %>
+          <%= link_to t("proposals.show.send_notification"), new_proposal_notification_path(proposal_id: @proposal.id),
+                      class: 'button hollow float-right' %>
         <% end %>
-        <% if current_user && @proposal.editable_by?(current_user) %>
-          <%= link_to edit_proposal_path(@proposal), class: 'edit-proposal button success small float-right' do %>
-            <i class="icon-edit"></i>
+
+        <% if current_user && @proposal.editable_by?(current_user) && !@proposal.proceeding? %>
+          <%= link_to edit_proposal_path(@proposal), class: 'edit-proposal button hollow float-right' do %>
             <%= t("proposals.show.edit_proposal_link") %>
           <% end %>
         <% end %>
 
         <h1><%= @proposal.title %></h1>
-        <% if @proposal.conflictive? %>
+        <% if @proposal.retired? %>
+          <div data-alert class="callout alert margin-top proposal-retired">
+            <strong>
+              <%= t("proposals.show.retired_warning") %><br>
+              <%= link_to t("proposals.show.retired_warning_link_to_explanation"), "#retired_explanation" %>
+            </strong>
+          </div>
+        <% elsif @proposal.conflictive? %>
           <div data-alert class="callout alert margin-top">
             <strong><%= t("proposals.show.flag") %></strong>
           </div>
+        <% end %>
+
+        <% if @proposal.proceeding? %>
+          <h2 class="proceeding"><%= @proposal.proceeding %></h2>
+          <h3 class="sub-proceeding"><%= @proposal.sub_proceeding %></h3>
         <% end %>
 
         <div class="proposal-info">
@@ -34,7 +48,7 @@
           <span class="bullet">&nbsp;&bull;&nbsp;</span>
           <%= l @proposal.created_at.to_date %>
           <span class="bullet">&nbsp;&bull;&nbsp;</span>
-          <i class="icon-comments"></i>&nbsp;
+          <span class="icon-comments"></span>&nbsp;
           <%= link_to t("proposals.show.comments", count: @proposal.comments_count), "#comments" %>
           <span class="bullet">&nbsp;&bull;&nbsp;</span>
           <span class="js-flag-actions">
@@ -50,6 +64,14 @@
 
         <blockquote><%= @proposal.summary %></blockquote>
 
+        <% if @proposal.video_url.present? %>
+          <div class="small-12 medium-7 small-centered">
+            <div class="flex-video">
+              <div id="js-embedded-video" data-video-code="<%= embedded_video_code %>"></div>
+            </div>
+          </div>
+        <% end %>
+
         <%= safe_html_with_links @proposal.description %>
 
         <% if @proposal.external_url.present? %>
@@ -64,31 +86,59 @@
           </div>
         <% end %>
 
-        <h4><%= @proposal.question %></h4>
+        <% unless @proposal.proceeding? %>
+          <h4><%= @proposal.question %></h4>
+        <% end %>
+
+        <% if @proposal.retired? %>
+          <div id="retired_explanation" class="callout">
+            <h2><%= t('proposals.show.retired') %>: <%= t("proposals.retire_options.#{@proposal.retired_reason}") unless @proposal.retired_reason == 'other' %></h2>
+            <%= simple_format text_with_links(@proposal.retired_explanation), {}, sanitize: false %>
+          </div>
+        <% end %>
 
         <%= render 'shared/tags', taggable: @proposal %>
 
-        <%= render 'shared/geozone', geozonable: @proposal %>
+        <% unless @proposal.proceeding? %>
+          <%= render 'shared/geozone', geozonable: @proposal %>
+        <% end %>
 
         <div class="js-moderator-proposal-actions margin">
           <%= render 'proposals/actions', proposal: @proposal %>
         </div>
       </div>
 
-      <aside class="small-12 medium-3 column">
-        <div class="sidebar-divider"></div>
-        <h3><%= t("votes.supports") %></h3>
-        <div class="text-center">
-          <div id="<%= dom_id(@proposal) %>_votes">
-           <%= render 'votes',
-                      { proposal: @proposal, vote_url: vote_proposal_path(@proposal, value: 'yes') } %>
+      <% unless @proposal.proceeding? %>
+        <aside class="small-12 medium-3 column">
+          <div class="sidebar-divider"></div>
+          <h3><%= t("votes.supports") %></h3>
+          <div class="text-center">
+            <div id="<%= dom_id(@proposal) %>_votes">
+             <%= render 'votes',
+                        { proposal: @proposal, vote_url: vote_proposal_path(@proposal, value: 'yes') } %>
+            </div>
           </div>
-        </div>
-        <div class="sidebar-divider"></div>
-        <h3><%= t("proposals.show.share") %></h3>
-        <%= social_share_button_tag(@proposal.title) %>
-      </aside>
+          <div id="social-share" class="sidebar-divider"></div>
+          <h3><%= t("proposals.show.share") %></h3>
+          <div class="social-share-full">
+            <%= social_share_button_tag("#{@proposal.title} #{setting['twitter_hashtag']}") %>
+            <% if browser.device.mobile? %>
+              <a href="whatsapp://send?text=<%= @proposal.title %> <%= proposal_url(@proposal) %>" data-action="share/whatsapp/share">
+                <span class="icon-whatsapp whatsapp"></span>
+              </a>
+            <% end %>
+          </div>
+        </aside>
+      <% end %>
     </div>
   </section>
 <% end %>
-<%= render "proposals/comments" %>
+
+<div class="tabs-content" data-tabs-content="example-tabs">
+  <%= render "proposals/filter_subnav" %>
+  <%= render "proposals/notifications" %>
+
+  <div class="tabs-panel is-active" id="tab-comments">
+    <%= render "proposals/comments" %>
+  </div>
+</div>

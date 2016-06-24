@@ -7,7 +7,7 @@ class Mailer < ApplicationMailer
     @comment = comment
     @commentable = comment.commentable
     with_user(@commentable.author) do
-      mail(to: @commentable.author.email, subject: t('mailers.comment.subject', commentable: t("activerecord.models.#{@commentable.class.name.downcase}", count: 1).downcase)) if @commentable.present? && @commentable.author.present?
+      mail(to: @commentable.author.email, subject: t('mailers.comment.subject', commentable: t("activerecord.models.#{@commentable.class.name.underscore}", count: 1).downcase)) if @commentable.present? && @commentable.author.present?
     end
   end
 
@@ -30,6 +30,41 @@ class Mailer < ApplicationMailer
 
     with_user(user) do
       mail(to: @recipient, subject: t('mailers.email_verification.subject'))
+    end
+  end
+
+  def unfeasible_spending_proposal(spending_proposal)
+    @spending_proposal = spending_proposal
+    @author = spending_proposal.author
+
+    with_user(@author) do
+      mail(to: @author.email, subject: t('mailers.unfeasible_spending_proposal.subject', code: @spending_proposal.code))
+    end
+  end
+
+  def direct_message_for_receiver(direct_message)
+    @direct_message = direct_message
+    @receiver = @direct_message.receiver
+
+    with_user(@receiver) do
+      mail(to: @receiver.email, subject: t('mailers.direct_message_for_receiver.subject'))
+    end
+  end
+
+  def direct_message_for_sender(direct_message)
+    @direct_message = direct_message
+    @sender = @direct_message.sender
+
+    with_user(@sender) do
+      mail(to: @sender.email, subject: t('mailers.direct_message_for_sender.subject'))
+    end
+  end
+
+  def proposal_notification_digest(user)
+    @notifications = user.notifications.where(notifiable_type: "ProposalNotification")
+
+    with_user(user) do
+      mail(to: user.email, subject: t('mailers.proposal_notification_digest.title', org_name: Setting['org_name']))
     end
   end
 

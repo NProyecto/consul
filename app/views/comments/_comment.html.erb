@@ -10,14 +10,14 @@
         <% end %>
       <% else %>
         <% if comment.as_administrator? %>
-          <%= image_tag("admin_avatar.png", size: 32, class: "admin-avatar float-left") %>
+          <%= image_tag("avatar_admin.png", size: 32, class: "admin-avatar float-left") %>
         <% elsif comment.as_moderator? %>
-          <%= image_tag("moderator_avatar.png", size: 32, class: "moderator-avatar float-left") %>
+          <%= image_tag("avatar_moderator.png", size: 32, class: "moderator-avatar float-left") %>
         <% else %>
         <% if comment.user.hidden? || comment.user.erased? %>
-            <i class="icon-deleted user-deleted"></i>
+            <span class="icon-deleted user-deleted"></span>
           <% elsif comment.user.organization? %>
-            <%= image_tag("collective_avatar.png", size: 32, class: "avatar float-left") %>
+            <%= image_tag("avatar_collective.png", size: 32, class: "avatar float-left") %>
           <% else %>
             <%= avatar_image(comment.user, seed: comment.user_id, size: 32, class: "float-left") %>
           <% end %>
@@ -36,7 +36,7 @@
                 <span class="user-name"><%= t("comments.comment.user_deleted") %></span>
               <% else %>
                 <span class="user-name"><%= link_to comment.user.name, user_path(comment.user) %></span>
-                <% if comment.user.official? %>
+                <% if comment.user.display_official_position_badge? %>
                   &nbsp;&bull;&nbsp;
                   <span class="label round level-<%= comment.user.official_level %>">
                     <%= comment.user.official_position %>
@@ -73,8 +73,8 @@
             </span>
 
             <% if comment.children.size > 0 %>
-              <%= link_to "", class: "js-toggle-children", data:  {'id': "#{dom_id(comment)}"} do %>
-                <i id="<%= dom_id(comment) %>_children_arrow" class="icon-angle-down"></i> <%= t("comments.comment.responses", count: comment.children.size) %>
+              <%= link_to "", class: "js-toggle-children relative", data:  {'id': "#{dom_id(comment)}"} do %>
+                <span id="<%= dom_id(comment) %>_children_arrow" class="icon-arrow-down"></span> <%= t("comments.comment.responses", count: comment.children.size) %>
               <% end %>
             <% else %>
               <%= t("comments.comment.responses", count: 0) %>

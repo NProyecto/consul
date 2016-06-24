@@ -11,6 +11,8 @@ module CommentableActions
     index_customization if index_customization.present?
 
     @tag_cloud = tag_cloud
+    @banners = Banner.with_active
+    
     set_resource_votes(@resources)
     set_resources_instance
   end
@@ -25,6 +27,7 @@ module CommentableActions
 
   def new
     @resource = resource_model.new
+    add_predefined_tag
     set_geozone
     set_resource_instance
   end
@@ -38,7 +41,7 @@ module CommentableActions
     @resource = resource_model.new(strong_params)
     @resource.author = current_user
 
-    if @resource.save_with_captcha
+    if @resource.save
       track_event
       redirect_path = url_for(controller: controller_name, action: :show, id: @resource.id)
       redirect_to redirect_path, notice: t("flash.actions.create.#{resource_name.underscore}")
@@ -55,7 +58,7 @@ module CommentableActions
 
   def update
     resource.assign_attributes(strong_params)
-    if resource.save_with_captcha
+    if resource.save
       redirect_to resource, notice: t("flash.actions.update.#{resource_name.underscore}")
     else
       load_categories
@@ -65,8 +68,7 @@ module CommentableActions
     end
   end
 
-
-   def map
+  def map
     @resource = resource_model.new
     @tag_cloud = tag_cloud
   end
@@ -152,5 +154,9 @@ module CommentableActions
 
     def index_customization
       nil
+    end
+
+    def add_predefined_tag
+      @resource.tag_list << params[:tag] if params[:tag].present?
     end
 end

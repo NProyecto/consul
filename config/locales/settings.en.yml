@@ -1,5 +1,6 @@
 en:
   settings:
+    comments_body_max_length: "Comments body max length"
     official_level_1_name: "Level 1 public official"
     official_level_2_name: "Level 2 public official"
     official_level_3_name: "Level 3 public official"
@@ -14,4 +15,10 @@ en:
     per_page_code: "Code to be included on every page"
     feature:
       debates: Debates
-      spending_proposals: Spending proposals
+      spending_proposals: Investment projects
+      spending_proposal_features:
+        phase1: "Participatory budget: Phase 1 - Accept proposals"
+        phase2: "Participatory budget: Phase 2 - Preselect proposals"
+        phase3: "Participatory budget: Phase 3 - Invest"
+        voting_allowed: Voting on investment projects - Preselection phase
+        final_voting_allowed: Voting on investment projects - Final phase

@@ -6,6 +6,7 @@ gem 'rails', '4.2.6'
 gem 'pg'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0', '>= 5.0.4'
+gem "animate-rails"
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .coffee assets and views
@@ -20,13 +21,13 @@ gem 'jquery-ui-rails'
 gem 'turbolinks'
 gem 'sprockets-rails', '~> 2.3.3'
 
-gem 'devise', '~> 3.5.6'
+gem 'devise', '~> 3.5.7'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 gem 'omniauth'
 gem 'omniauth-twitter'
 gem 'omniauth-facebook', '~> 3.0.0'
-gem 'omniauth-google-oauth2', '~> 0.3.0'
+gem 'omniauth-google-oauth2', '~> 0.4.0'
 
 gem 'kaminari'
 gem 'ancestry'
@@ -35,17 +36,17 @@ gem 'responders'
 gem 'foundation-rails'
 gem 'foundation_rails_helper'
 gem 'acts_as_votable'
-gem 'simple_captcha2', require: 'simple_captcha'
 gem 'ckeditor', '~> 4.1.5'
+gem 'invisible_captcha', '~> 0.8.2'
 gem 'cancancan'
 gem 'social-share-button', git: 'https://github.com/huacnlee/social-share-button.git', ref: 'e46a6a3e82b86023bc'
 gem 'initialjs-rails', '0.2.0.1'
-gem 'unicorn', '~> 5.0.1'
+gem 'unicorn', '~> 5.1.0'
 gem 'paranoia'
 gem 'rinku', require: 'rails_rinku'
 gem 'savon'
 gem 'dalli'
-gem 'rollbar', '~> 2.8.0'
+gem 'rollbar', '~> 2.11.0'
 gem 'delayed_job_active_record', '~> 4.1.0'
 gem 'daemons'
 gem 'devise-async'
@@ -53,13 +54,15 @@ gem 'newrelic_rpm', '~> 3.14'
 gem 'whenever', require: false
 gem 'pg_search'
 
-gem 'ahoy_matey', '~> 1.2.1'
+gem 'ahoy_matey', '~> 1.4.0'
 gem 'groupdate'   # group temporary data
 gem 'tolk' # Web interface for translations
 
 gem 'browser'
 gem 'turnout'
 gem 'redcarpet'
+gem 'rubyzip'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
@@ -74,7 +77,7 @@ group :development, :test do
   gem 'quiet_assets'
   gem 'letter_opener_web', '~> 1.3.0'
   gem 'i18n-tasks'
-  gem 'capistrano', '3.4.0',           require: false
+  gem 'capistrano', '3.4.1',           require: false
   gem "capistrano-bundler", '1.1.4',   require: false
   gem "capistrano-rails", '1.1.6',     require: false
   gem "capistrano-rvm",                require: false
@@ -88,6 +91,7 @@ group :test do
   gem 'poltergeist'
   gem 'coveralls', require: false
   gem 'email_spec'
+  gem 'timecop'
 end
 
 group :development do

@@ -16,10 +16,6 @@ Este es el repositorio de código abierto de la Aplicación de Participación Ci
 
 El desarrollo de esta aplicación comenzó el [15 de Julio de 2015](https://github.com/consul/consul/commit/8db36308379accd44b5de4f680a54c41a0cc6fc6) y el código fue puesto en producción el día 7 de Septiembre de 2015 en [decide.madrid.es](https://decide.madrid.es). Desde entonces se le añaden mejoras y funcionalidades constantemente. La evolución y futura lista de funcionalidades a implementar se pueden consultar en la lista de [tareas por hacer](https://github.com/consul/consul/issues).
 
-## Hoja de ruta
-
-Ver fichero [ROADMAP_ES.md](ROADMAP_ES.md)
-
 ## Tecnología
 
 El backend de esta aplicación se desarrolla con el lenguaje de programación [Ruby](https://www.ruby-lang.org/) sobre el *framework* [Ruby on Rails](http://rubyonrails.org/).
@@ -27,7 +23,7 @@ Las herramientas utilizadas para el frontend no están cerradas aún. Los estilo
 
 ## Configuración para desarrollo y tests
 
-Prerequisitos: tener instalado git, ImageMagick, Ruby 2.2.3, la gema `bundler`, ghostscript y PostgreSQL (9.4 o superior).
+Prerequisitos: tener instalado git, Ruby 2.2.3, la gema `bundler`, ghostscript y PostgreSQL (9.4 o superior).
 
 ```
 
@@ -39,7 +35,7 @@ cp config/secrets.yml.example config/secrets.yml
 rake db:create
 bin/rake db:setup
 bin/rake db:dev_seed
-RAILS_ENV=test bin/rake db:setup
+RAILS_ENV=test rake db:setup
 ```
 
 Para ejecutar la aplicación en local:
@@ -47,13 +43,24 @@ Para ejecutar la aplicación en local:
 bin/rails s
 ```
 
-Prerequisitos para los tests: tener instalado PhantomJS >= 2.0
+Prerequisitos para los tests: tener instalado PhantomJS >= 1.9.8
 
 Para ejecutar los tests:
 
 ```
 bin/rspec
 ```
+
+Puedes usar el usuario administrador por defecto del fichero seeds:
+
+ **user:** admin@madrid.es
+ **pass:** 12345678
+
+Pero para ciertas acciones, como apoyar, necesitarás un usuario verificado, el fichero seeds proporciona uno:
+
+ **user:** verified@madrid.es
+ **pass:** 12345678
+
 
 ### OAuth
 

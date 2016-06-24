@@ -79,8 +79,26 @@ describe User do
     end
 
     describe 'subscription_to_website_newsletter' do
+      it 'should be true by default' do
+        expect(subject.newsletter).to eq(true)
+      end
+    end
+
+    describe 'email_digest' do
+      it 'should be true by default' do
+        expect(subject.email_digest).to eq(true)
+      end
+    end
+
+    describe 'email_on_direct_message' do
+      it 'should be true by default' do
+        expect(subject.email_on_direct_message).to eq(true)
+      end
+    end
+
+    describe 'official_position_badge' do
       it 'should be false by default' do
-        expect(subject.newsletter).to eq(false)
+        expect(subject.official_position_badge).to eq(false)
       end
     end
   end
@@ -118,6 +136,18 @@ describe User do
       subject.save
       create(:valuator, user: subject)
       expect(subject.valuator?).to be true
+    end
+  end
+
+  describe "manager?" do
+    it "is false when the user is not a manager" do
+      expect(subject.manager?).to be false
+    end
+
+    it "is true when the user is a manager" do
+      subject.save
+      create(:manager, user: subject)
+      expect(subject.manager?).to be true
     end
   end
 
@@ -259,6 +289,42 @@ describe User do
     end
   end
 
+  describe "official_position_badge" do
+
+    describe "Users of level 1" do
+
+      it "displays the badge if set in preferences" do
+        user = create(:user, official_level: 1, official_position_badge: true)
+
+        expect(user.display_official_position_badge?).to eq true
+      end
+
+      it "does not display the badge if set in preferences" do
+        user = create(:user, official_level: 1, official_position_badge: false)
+
+        expect(user.display_official_position_badge?).to eq false
+      end
+
+    end
+
+    describe "Users higher than level 1" do
+
+      it "displays the badge regardless of preferences" do
+        user1 = create(:user, official_level: 2, official_position_badge: false)
+        user2 = create(:user, official_level: 3, official_position_badge: false)
+        user3 = create(:user, official_level: 4, official_position_badge: false)
+        user4 = create(:user, official_level: 5, official_position_badge: false)
+
+        expect(user1.display_official_position_badge?).to eq true
+        expect(user2.display_official_position_badge?).to eq true
+        expect(user3.display_official_position_badge?).to eq true
+        expect(user4.display_official_position_badge?).to eq true
+      end
+
+    end
+
+  end
+
   describe "self.search" do
     it "find users by email" do
       user1 = create(:user, email: "larry@madrid.es")
@@ -333,6 +399,7 @@ describe User do
                      email_verification_token: "token3",
                      confirmed_phone:"5678",
                      unconfirmed_phone:"5678")
+
       user.erase('a test')
       user.reload
 
@@ -353,6 +420,14 @@ describe User do
       expect(user.confirmation_token).to be_nil
       expect(user.reset_password_token).to be_nil
       expect(user.email_verification_token).to be_nil
+
+    end
+
+    it "destroys associated identities" do
+      user = create(:user)
+      identity = create(:identity, user: user)
+      user.erase('an identity test')
+      expect(Identity.exists?(identity.id)).to_not be
     end
   end
 

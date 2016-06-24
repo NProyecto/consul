@@ -6,72 +6,35 @@
 // 04. Tags
 // 05. Auth pages
 // 06. Forms
-// 07. Alerts
+// 07. Callout
 // 08. User account
 // 09. Search
 // 10. Official levels
-// 12. Tables
-// 13. Social
-// 14. Pages
-// 15. Verification
-// 16. Comments
-// 17. Flags
-// 18. Activity
+// 11. Tables
+// 12. Social
+// 13. Pages
+// 14. Verification
+// 15. Comments
+// 16. Flags
+// 17. Activity
+// 18. Banners
 //
 
 // 01. Global styles
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-*, html {
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-}
+// -----------------
 
 body {
-  background: white;
-  color: $text;
-  font-family: $font-sans;
   font-size: $base-font-size;
 }
 
 h1, h2, h3, h4, h5, h6 {
   clear: both;
-  font-family: $font-sans;
-  font-weight: $font-bold;
-}
-
-h1 {
-  @include h1();
-}
-
-h2 {
-  @include h2();
-}
-
-h3 {
-  @include h3();
-}
-
-h4 {
-  @include h4();
-}
-
-h5 {
-  @include h5();
-}
-
-h6 {
-  @include h6();
-  font-weight: $font-normal;
+  font-weight: 700;
 }
 
 p {
   font-size: $base-font-size;
-  font-weight: $font-normal;
+  font-weight: 400;
   line-height: $base-line-height;
 }
 
@@ -88,7 +51,7 @@ a {
   }
 
   &:focus {
-    outline: 0;
+    outline: 3px solid #ffbf47;
   }
 }
 
@@ -157,11 +120,15 @@ a {
   margin-bottom: $line-height;
 }
 
+.margin-right {
+  margin-right: $line-height;
+}
+
 .no-margin-top {
   margin-top: rem-calc(-24);
 }
 
-.padding  {
+.padding {
   padding-bottom: $line-height;
   padding-top: $line-height;
 }
@@ -196,7 +163,7 @@ a {
   width: 100%;
 
   a.close {
-    font-size: $h2-font-size;
+    font-size: rem-calc(34);
     top: 20%;
   }
 }
@@ -210,13 +177,6 @@ a {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
-}
-
-#drop-help.f-dropdown.content {
-
-  @media (min-width: $small-breakpoint) {
-    max-width: $line-height*15;
-  }
 }
 
 .menu.simple {
@@ -254,11 +214,51 @@ a {
 }
 
 .back, .icon-angle-left {
-  @include back;
+  clear: both;
+  color: $text-medium;
+  float: left;
+}
+
+.tabs-content {
+  border: 0;
+}
+
+.tabs {
+  border: {
+    left: 0;
+    right: 0;
+    top: 0;
+  };
+  margin-bottom: $line-height;
+
+  .tabs-title > a {
+    color: $text-medium;
+    margin-bottom: rem-calc(-1);
+    margin-right: $line-height;
+
+    &[aria-selected='true'],
+    &.is-active {
+      color: $brand;
+      border-bottom: 2px solid $brand;
+      font-weight: bold;
+    }
+  }
+
+  h2 {
+    font-size: $base-font-size;
+  }
+}
+
+.no-max-width {
+  max-width: none;
+}
+
+.button.float-right ~ .button.float-right {
+  margin: 0 $line-height/2;
 }
 
 // 02. Header
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// ----------
 
 header {
   background: $brand;
@@ -270,13 +270,9 @@ header {
   }
 
   .locale {
-    float: none;
+    float: left;
     height: $line-height*1.5;
-
-    @media (min-width: $small-breakpoint) {
-      float: left;
-      margin-left: $line-height/2;
-    }
+    margin-left: $line-height/2;
   }
 
   .external-links {
@@ -284,7 +280,7 @@ header {
     padding: rem-calc(6) 0;
     text-align: center;
 
-    @media (min-width: $small-breakpoint) {
+    @include breakpoint(medium) {
       float: right;
     }
   }
@@ -298,7 +294,7 @@ header {
   padding-bottom: 0;
   padding-top: 0;
 
-  @media (min-width: $small-breakpoint) {
+  @include breakpoint(medium) {
     padding: 0;
   }
 
@@ -318,7 +314,7 @@ header {
     &.menu > li {
       display: block;
 
-      @media (min-width: $small-breakpoint) {
+      @include breakpoint(medium) {
         display: table-cell;
         height: $line-height*3.5;
       }
@@ -327,7 +323,7 @@ header {
         color: white;
         padding-left: 0;
 
-        @media (min-width: $small-breakpoint) {
+        @include breakpoint(medium) {
           font-size: $small-font-size;
           padding: rem-calc(11) rem-calc(16);
         }
@@ -335,7 +331,7 @@ header {
         &.button {
           text-align: left;
 
-          @media (min-width: $small-breakpoint) {
+          @include breakpoint(medium) {
             background: white;
             color: $brand;
             text-align: center;
@@ -373,7 +369,7 @@ header {
 
 .subnavigation {
 
-  @media (min-width: $small-breakpoint) {
+  @include breakpoint(medium) {
     background: white;
     padding-bottom: 0;
   }
@@ -383,7 +379,7 @@ header {
     margin: 0;
 
     li {
-      @media (min-width: $small-breakpoint) {
+      @include breakpoint(medium) {
         display: inline-block;
         margin-right: rem-calc(36);
       }
@@ -396,12 +392,10 @@ header {
         text-align: left;
         width: 100%;
 
-        @media (min-width: $small-breakpoint) {
+        @include breakpoint(medium) {
           color: $text;
           display: block;
           font-weight: bold;
-          margin-left: 18px\9;
-          margin-right: 18px\9;
           width: auto;
 
           &:hover {
@@ -412,7 +406,7 @@ header {
         &.active {
           color: white;
 
-          @media (min-width: $small-breakpoint) {
+          @include breakpoint(medium) {
             border-bottom: 2px solid $brand;
             color: $brand;
           }
@@ -421,14 +415,10 @@ header {
     }
   }
 
-  span {
-    color: $border;
-  }
-
   .input-group {
     padding-top: $line-height/4;
 
-    @media (min-width: $small-breakpoint) {
+    @include breakpoint(medium) {
       margin-bottom: 0;
     }
   }
@@ -473,7 +463,7 @@ header {
     position: relative;
     text-align: left;
 
-    @media (min-width: $small-breakpoint) {
+    @include breakpoint(medium) {
       margin-right: $line-height*1.5;
     }
 
@@ -488,14 +478,18 @@ header {
   }
 }
 
+.search-form-header input[type=text] {
+  max-width: none;
+}
+
 // 03. Footer
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// ----------
 
 footer {
   color: $footer-color;
 
   .logo a {
-    font-family: $font-logo;
+    font-family: 'Lato' !important;
     text-decoration: none;
 
     &:hover {
@@ -524,11 +518,10 @@ footer {
   }
 
   h2 a {
-
     border-bottom: 1px solid $footer-border;
     display: block;
-    font-size: $h3-font-size;
-    line-height: $h3-line-height;
+    font-size: rem-calc(24);
+    line-height: rem-calc(31);
     padding-bottom: $line-height/4;
     text-decoration: none;
   }
@@ -537,6 +530,7 @@ footer {
 .footer {
   background: $footer-bg;
   border-top: 6px solid $brand;
+  margin-top: $line-height*2;
   padding-top: $line-height;
 }
 
@@ -546,9 +540,9 @@ footer {
 }
 
 // 04. Tags
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// --------
 
-.tags a , .tag-cloud a, .categories a, .geozone a {
+.tags a , .tag-cloud a, .categories a, .geozone a, .sidebar-links a {
   background: #ececec;
   border-radius: rem-calc(6);
   color: $text;
@@ -583,7 +577,7 @@ h3.sidebar-title {
 }
 
 // 05. Auth pages
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// --------------
 
 .auth-page {
   background: $brand image-url("auth_bg.jpg");
@@ -599,7 +593,7 @@ h3.sidebar-title {
       line-height: rem-calc(80); // Same as logo image height
       text-align: center;
 
-      @media (min-width: $small-breakpoint) {
+      @include breakpoint(medium) {
         display: inline-block;
         text-align: left;
       }
@@ -620,7 +614,7 @@ h3.sidebar-title {
 }
 
 // 06. Forms
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// ---------
 
 form.locale-form {
   display: inline-block;
@@ -655,12 +649,15 @@ form.locale-form {
       padding-left: rem-calc(3);
       padding-right: $line-height;
       width: auto;
+
+      &:focus {
+        outline: 3px solid #ffbf47;
+      }
     }
   }
 }
 
 form {
-  font-family: $font-sans;
 
   label {
     font-size: $base-font-size;
@@ -672,24 +669,9 @@ form {
     font-weight: bold;
   }
 
-  input, textarea {
-    height: 48px\9;
-    line-height: 48px\9;
-    margin-bottom: 24px\9;
-    width: 100%\9;
-  }
-
-  input[type="checkbox"],
-  input[type="radio"] {
-    height: auto\9;
-    line-height: inherit\9;
-    width: auto\9;
-  }
-
   input[type="radio"] {
     height: $line-height !important;
     vertical-align: top;
-    width: 18px\9;
 
     + label {
       font-weight: normal;
@@ -701,7 +683,7 @@ form {
   }
 
   input[type]:not([type=submit]):not([type=file]):not([type=checkbox]):not([type=radio]) {
-    background: $input-bg;
+    background: #F8F8F8;
     height: $line-height*2;
     margin-bottom: rem-calc(16);
 
@@ -739,69 +721,48 @@ form {
     min-height: $line-height*13;
   }
 
-  .checkbox {
+  .checkbox, .radio {
     display: inline-block;
     font-weight: normal;
     line-height: $line-height;
     vertical-align: middle;
   }
-
-  .captcha {
-    border: 0;
-    padding: $line-height/2 0;
-
-    input {
-      margin-bottom: 0 !important;
-    }
-  }
-
-  .button.margin-top {
-    margin-top: $line-height;
-  }
 }
 
-.captcha {
-
-  label {
-    display: none;
-  }
-}
-
-// 07. Alerts
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 07. Callout
+// -----------
 
 .callout {
-  font-family: $font-sans;
   font-size: $small-font-size;
 
-  &.success {
+  &.success, &.notice {
     background-color: $success-bg;
     border-color: $success-border;
-    color: $success-color;
+    color: $color-success;
   }
 
   &.primary {
     background-color: $info-bg;
     border-color: $info-border;
-    color: $info-color;
+    color: $color-info;
   }
 
   &.warning {
     background-color: $warning-bg;
     border-color: $warning-border;
-    color: $warning-color;
+    color: $color-warning;
 
     a {
-      color: $warning-color;
+      color: $color-warning;
       font-weight: bold;
       text-decoration: underline;
     }
   }
 
-  &.alert {
+  &.alert, &.error {
     background-color: $alert-bg;
     border-color: $alert-border;
-    color: $alert-color;
+    color: $color-alert;
   }
 
   .close {
@@ -811,27 +772,27 @@ form {
 
 span.error, small.error {
   background: $alert-bg;
-  color: $alert-color;
+  color: $color-alert;
 }
 
 span.no-error, small.no-error {
   background: $success-bg;
-  color: $success-color;
+  color: $color-success;
 }
 
 .error small.error {
   background: $alert-bg;
-  color: $alert-color;
+  color: $color-alert;
   display: inline-block;
   margin: 0 $line-height/4;
 }
 
 label.error, label.error a {
-  color: $alert-color;
+  color: $color-alert;
 }
 
 // 08. User account
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// ----------------
 
 .account {
 
@@ -847,7 +808,7 @@ label.error, label.error a {
   .final-votes-info {
     background: $warning-bg;
     border: 1px solid $warning-border;
-    color: $warning-color;
+    color: $color-warning;
     margin-top: $line-height;
     padding: $line-height/2;
 
@@ -879,7 +840,7 @@ img.avatar, img.admin-avatar, img.moderator-avatar, img.initialjs-avatar {
 }
 
 .user-deleted {
-  top: -9px;
+  top: -4px;
 }
 
 .user-permissions {
@@ -924,16 +885,16 @@ img.avatar, img.admin-avatar, img.moderator-avatar, img.initialjs-avatar {
   }
 
   [class^="icon-"] {
-    font-size: $h4-font-size;
+    font-size: rem-calc(19);
     vertical-align: middle;
   }
 
   .icon-circle {
     color: #ecf00b;
-    font-size: $tiny-font-size;
+    font-size: rem-calc(10);
     position: absolute;
-    right: 4px;
-    top: -6px;
+    right: 8px;
+    top: 6px;
   }
 }
 
@@ -941,9 +902,9 @@ img.avatar, img.admin-avatar, img.moderator-avatar, img.initialjs-avatar {
   background: $border;
   content: '';
   height: 100%;
-  left: 28px;
+  left: 22px;
   position: absolute;
-  top: 84px;
+  top: 60px;
   width: 2px;
 }
 
@@ -972,7 +933,7 @@ img.avatar, img.admin-avatar, img.moderator-avatar, img.initialjs-avatar {
     color: $brand;
     content: "\4d";
     font-family: "icons" !important;
-    left: 6px;
+    left: 0;
     position: absolute;
   }
 
@@ -988,32 +949,27 @@ img.avatar, img.admin-avatar, img.moderator-avatar, img.initialjs-avatar {
 }
 
 // 09. Search
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// ----------
 
-.search-form {
-
-  h3 {
-    border-top: 1px solid $votes-border;
-    display: inline-block;
-    font-size: rem-calc(16);
-    margin: -1px 0 $line-height/2;
-    padding-top: $line-height/4;
-    text-transform: uppercase;
-  }
+.search-form h3 {
+  border-top: 1px solid $votes-border;
+  display: inline-block;
+  font-size: rem-calc(16);
+  margin: -1px 0 $line-height/2;
+  padding-top: $line-height/4;
+  text-transform: uppercase;
 }
 
-.search-results {
-
-  h2 {
-    margin-bottom: 0;
-  }
+.search-results h2 {
+  margin-bottom: 0;
 }
 
 .advanced-search {
   float: left;
   margin: $line-height 0;
+  position: inherit;
 
-  @media (min-width: $small-breakpoint) {
+  @include breakpoint(medium) {
     float: right;
     margin-bottom: 0;
     margin-top: rem-calc(28);
@@ -1030,55 +986,46 @@ img.avatar, img.admin-avatar, img.moderator-avatar, img.initialjs-avatar {
     height: $line-height*2;
   }
 
-  @media (max-width: $medium-breakpoint) {
-
-    .column {
+  @include breakpoint(medium) {
+    & > .column {
       padding: 0;
     }
   }
 }
 
 // 10. Officials levels
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// --------------------
 
 [class^="level-"] {
   color: white;
 }
 
 .is-author {
-  background: $author;
+  background: #008CCF;
 }
 
 .is-association {
-  background: $association;
+  background: #C0392B;
 }
 
 .is-deleted {
-  background: $deleted;
+  background: #E7E7E7;
 }
 
 .level-1 {
-  background: $level-1;
+  background: #1ABC9C;
 }
 
-.level-2 {
-  background: $level-2;
-}
-
-.level-3 {
-  background: $level-3;
-}
-
-.level-4 {
-  background: $level-4;
+.level-2, .level-3, .level-4 {
+  background: #43AC6A;
 }
 
 .level-5 {
-  background: $level-5;
+  background: #F08A24;
 }
 
-// 12. Tables
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 11. Tables
+// ----------
 
 table {
   border: $border;
@@ -1111,8 +1058,8 @@ table {
   }
 }
 
-// 13. Social
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 12. Social
+// ----------
 
 .button.button-twitter,
 .button.button-facebook,
@@ -1243,7 +1190,7 @@ table {
 .social {
 
   a {
-    font-size: $h3-font-size;
+    font-size: rem-calc(24);
     margin: 0 $line-height/2;
     text-decoration: none;
 
@@ -1329,8 +1276,8 @@ table {
   }
 }
 
-// 14. Pages
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 13. Pages
+// ---------
 
 .more-information {
 
@@ -1369,7 +1316,7 @@ table {
         right: 0;
         top: 24px;
 
-        @media (min-width: $small-breakpoint) {
+        @include breakpoint(medium) {
           content: 'c';
         }
       }
@@ -1377,24 +1324,24 @@ table {
   }
 }
 
-// 15. Verification
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 14. Verification
+// ----------------
 
 .verification {
 
-  @media (min-width: $small-breakpoint) {
+  @include breakpoint(medium) {
     .left + .left {
       margin-left: $line-height/2;
     }
   }
 
-  .date {
+  .date-of-birth {
 
     select {
       float: left;
       width: 30%;
 
-      @media (min-width: $small-breakpoint) {
+      @include breakpoint(medium) {
         width: 25%;
       }
     }
@@ -1403,7 +1350,7 @@ table {
   .progress {
     height: $line-height*3;
 
-    @media (min-width: $small-breakpoint) {
+    @include breakpoint(medium) {
       height: $line-height*2;
     }
 
@@ -1420,7 +1367,7 @@ table {
     text-transform: uppercase;
     vertical-align: top;
 
-    @media (min-width: $small-breakpoint) {
+    @include breakpoint(medium) {
       line-height: $line-height*2;
       padding: 0;
     }
@@ -1428,7 +1375,7 @@ table {
     .number {
       display: block;
 
-      @media (min-width: $small-breakpoint) {
+      @include breakpoint(medium) {
         background-color: white;
         border-radius: rem-calc(30);
         color: #43AC6A;
@@ -1518,7 +1465,7 @@ table {
 
     .icon-letter {
       background: white;
-      color: $info-color;
+      color: $color-info;
       font-size: rem-calc(24);
       margin-left: -27px;
       padding: 0 $line-height/2;
@@ -1528,13 +1475,12 @@ table {
   }
 }
 
-// 16. Comments
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 15. Comments
+// ------------
 
 .comments {
   background: $white;
   background-repeat: repeat-x;
-  padding-top: $line-height;
   padding-bottom: $line-height*4;
 
   h2 {
@@ -1550,6 +1496,7 @@ table {
 
   .comment {
     margin: $line-height/4 0;
+    position: relative;
 
     p {
       margin-bottom: 0;
@@ -1557,8 +1504,7 @@ table {
 
     .comment-votes {
       color: $text-medium;
-      font-family: $font-sans;
-      font-size: $small-font-size;
+      font-size: rem-calc(14);
       line-height: $line-height;
 
       a {
@@ -1589,6 +1535,13 @@ table {
         margin: rem-calc(6) 0;
         padding: rem-calc(6);
 
+        [class^="icon-arrow"] {
+          font-size: rem-calc(18);
+          left: -20px;
+          position: absolute;
+          top: 0;
+        }
+
         .divider {
           color: $text-light;
         }
@@ -1599,42 +1552,28 @@ table {
         padding: $line-height/4 0;
         overflow: hidden;
 
-        @each $n in ("1", "2", "3","4", "5") {
-          &.level-#{$n} {
-            @if $n == "5" {
-              background: $comment-level-5;
-              padding: $line-height/4 $line-height/2;
-            }
-            @elseif $n == "1" {
-              background: none;
-              padding: $line-height/4 $line-height/2;
-            }
-            @else {
-              background: $comment-official;
-              padding: $line-height/4 $line-height/2;
-            }
-          }
-        }
-
-        &.is-author {
-          background: $comment-author;
+        &.level-1, &.level-2, &.level-3, &.level-4, &.level-5,
+        &.is-author, &.is-admin, &.is-moderator {
+          background: rgba(70,219,145,.3);
           padding: $line-height/4 $line-height/2;
         }
 
-        &.is-admin, &.is-moderator {
-          background: $comment-admin;
-          padding: $line-height/4 $line-height/2;
+        &.level-1 {
+          background: none;
         }
 
         &.level-5 {
-          background: $comment-level-5;
-          padding: $line-height/4 $line-height/2;
+          background: rgba(255,241,204,1);
+        }
+
+        &.is-author, &.is-admin, &.is-moderator {
+          background: rgba(45,144,248,.15);
         }
       }
     }
 
     .is-deleted {
-      background: $deleted;
+      background: #E7E7E7;
       margin-left: rem-calc(42);
       padding: $line-height/4 $line-height/2;
     }
@@ -1651,7 +1590,6 @@ table {
 
     .comment-info {
       color: $text-medium;
-      font-family: $font-sans;
       font-size: $small-font-size;
       margin-top: $line-height/4;
       vertical-align: middle;
@@ -1672,7 +1610,7 @@ table {
   float: none;
   margin-top: 0;
 
-  @media (min-width: $small-breakpoint) {
+  @include breakpoint(medium) {
     float: right;
     margin-top: rem-calc(-24);
   }
@@ -1681,14 +1619,14 @@ table {
     padding-right: $line-height/2;
     float: none;
 
-    @media (min-width: $small-breakpoint) {
+    @include breakpoint(medium) {
       float: right;
     }
   }
 }
 
-// 17. Flags
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 16. Flags
+// ---------
 
 .flag-content {
 
@@ -1715,8 +1653,8 @@ table {
   color: $text-medium;
 }
 
-// 18. Activity
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+// 17. Activity
+// ------------
 
 .activity {
   margin-bottom: $line-height*2;
@@ -1725,8 +1663,12 @@ table {
     border: 0;
 
     td {
-      padding-left: $line-height*1.5;
       position: relative;
+
+      &:first-child {
+        padding-left: $line-height*1.5;
+        width: 75%;
+      }
 
       &:before {
         color: $brand;
@@ -1737,19 +1679,97 @@ table {
       }
     }
 
-    &.activity-comments td:before {
+    &.activity-comments td:first-child:before {
       content: "e";
       top: 18px;
     }
 
-    &.activity-debates td:before {
+    &.activity-debates td:first-child:before {
       content: "i";
       top: 14px;
     }
 
-    &.activity-proposals td:before {
-      content: "h";
-      top: 18px;
+    &.activity-proposals {
+
+      td:first-child:before {
+        content: "h";
+        top: 18px;
+      }
+
+      .retired {
+        text-decoration: line-through;
+      }
+    }
+
+    &.activity-investment-projects td:first-child:before, &.activity-ballot td:first-child:before {
+      content: "\53";
+      top: 10px;
+    }
+  }
+}
+
+// 18. Banners
+// -----------
+
+.banner-style-one {
+  background-color: $brand;
+}
+
+.banner-style-two {
+  background-color: $budget;
+}
+
+.banner-style-three {
+  background-color: #33DADF;
+}
+
+@include breakpoint(large) {
+
+  .banner-img-one {
+    background-image: image-url('banners/banner1.png');
+  }
+
+  .banner-img-two {
+    background-image: image-url('banners/banner2.png');
+  }
+
+  .banner-img-three {
+    background-image: image-url('banners/banner3.png');
+  }
+}
+
+.banner-img-one, .banner-img-two, .banner-img-three {
+  background-position: bottom right;
+  background-repeat: no-repeat;
+}
+
+.banner-style-one, .banner-style-two, .banner-style-three {
+  margin: 0;
+  margin-bottom: $line-height;
+
+  h2, h3, a {
+    color: #eaeaf2;
+  }
+
+  h2 {
+    padding: $line-height/2;
+    padding-bottom: 0;
+  }
+
+  h3 {
+    padding: $line-height/2;
+    padding-top: 0;
+  }
+
+  a:hover h2, a:hover h3 {
+    color: #eaeaf2 !important;
+    text-decoration: none;
+  }
+
+  @include breakpoint(large) {
+
+    h3 {
+      width: 80%;
     }
   }
 }

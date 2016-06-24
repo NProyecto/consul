@@ -3,6 +3,7 @@ require 'database_cleaner'
 DatabaseCleaner.clean_with :truncation
 
 puts "Creating Settings"
+Setting["email_domain_for_officials"] = 'madrid.es'
 Setting.create(key: 'official_level_1_name', value: 'Empleados públicos')
 Setting.create(key: 'official_level_2_name', value: 'Organización Municipal')
 Setting.create(key: 'official_level_3_name', value: 'Directores generales')
@@ -13,17 +14,27 @@ Setting.create(key: 'max_votes_for_debate_edit', value: '1000')
 Setting.create(key: 'max_votes_for_proposal_edit', value: '1000')
 Setting.create(key: 'proposal_code_prefix', value: 'MAD')
 Setting.create(key: 'votes_for_proposal_success', value: '100')
+Setting.create(key: 'comments_body_max_length', value: '1000')
 
+Setting.create(key: 'twitter_handle', value: '@consul_dev')
+Setting.create(key: 'twitter_hashtag', value: '#consul_dev')
+Setting.create(key: 'facebook_handle', value: 'consul')
+Setting.create(key: 'youtube_handle', value: 'consul')
 Setting.create(key: 'blog_url', value: '/blog')
 Setting.create(key: 'url', value: 'http://localhost:3000')
 Setting.create(key: 'org_name', value: 'Consul')
 Setting.create(key: 'place_name', value: 'City')
 Setting.create(key: 'feature.debates', value: "true")
 Setting.create(key: 'feature.spending_proposals', value: "true")
+Setting.create(key: 'feature.spending_proposal_features.phase1', value: "true")
+Setting.create(key: 'feature.spending_proposal_features.phase2', value: nil)
+Setting.create(key: 'feature.spending_proposal_features.phase3', value: nil)
+Setting.create(key: 'feature.spending_proposal_features.voting_allowed', value: "true")
+Setting.create(key: 'feature.spending_proposal_features.final_voting_allowed', value: "true")
 Setting.create(key: 'feature.twitter_login', value: "true")
 Setting.create(key: 'feature.facebook_login', value: "true")
 Setting.create(key: 'feature.google_login', value: "true")
-
+Setting.create(key: 'per_page_code', value: "")
 Setting.create(key: 'comments_body_max_length', value: '1000')
 
 puts "Creating Geozones"
@@ -71,6 +82,12 @@ moderator.create_moderator
 
 valuator = create_user('valuator@madrid.es', 'valuator')
 valuator.create_valuator
+
+level_2 = create_user('leveltwo@madrid.es', 'level 2')
+level_2.update(residence_verified_at: Time.now, confirmed_phone: Faker::PhoneNumber.phone_number, document_number: "2222222222", document_type: "1" )
+
+verified = create_user('verified@madrid.es', 'verified')
+verified.update(residence_verified_at: Time.now, confirmed_phone: Faker::PhoneNumber.phone_number, document_type: "1", verified_at: Time.now, document_number: "3333333333")
 
 (1..10).each do |i|
   org_name = Faker::Company.name
@@ -280,16 +297,28 @@ end
 
 puts "Creating Spending Proposals"
 
-(1..30).each do |i|
+tags = Faker::Lorem.words(10)
+
+(1..60).each do |i|
   geozone = Geozone.reorder("RANDOM()").first
-  author = User.reorder("RANDOM()").first
+  author = User.reorder("RANDOM()").reject {|a| a.organization? }.first
   description = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
+  forum = ["true", "false"].sample
+  feasible_explanation = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
+  valuation_finished = [true, false].sample
+  feasible = [true, false].sample
   spending_proposal = SpendingProposal.create!(author: author,
                               title: Faker::Lorem.sentence(3).truncate(60),
                               external_url: Faker::Internet.url,
                               description: description,
                               created_at: rand((Time.now - 1.week) .. Time.now),
                               geozone: [geozone, nil].sample,
+                              feasible: feasible,
+                              feasible_explanation: feasible_explanation,
+                              valuation_finished: valuation_finished,
+                              tag_list: tags.sample(3).join(','),
+                              forum: forum,
+                              price: rand(1000000),
                               terms_of_service: "1")
   puts "    #{spending_proposal.title}"
 end
@@ -299,11 +328,6 @@ puts "Creating Valuation Assignments"
 (1..17).to_a.sample.times do
   SpendingProposal.reorder("RANDOM()").first.valuators << valuator.valuator
 end
-
-puts "Creating Legislation"
-
-Legislation.create!(title: 'Participatory Democracy', body: 'In order to achieve...')
-
 
 puts "Ignoring flags in Debates, comments & proposals"
 
@@ -324,3 +348,69 @@ puts "Confirming hiding in debates, comments & proposals"
 Comment.only_hidden.flagged.reorder("RANDOM()").limit(10).each(&:confirm_hide)
 Debate.only_hidden.flagged.reorder("RANDOM()").limit(5).each(&:confirm_hide)
 Proposal.only_hidden.flagged.reorder("RANDOM()").limit(5).each(&:confirm_hide)
+
+puts "Creating district Forums"
+forums = ["Fuencarral - El Pardo", "Moncloa - Aravaca", "Tetuán", "Chamberí", "Centro", "Latina", "Carabanchel", "Arganzuela", "Usera", "Villaverde", "Chamartin", "Salamanca", "Retiro", "Puente de Vallecas", "Villa de Vallecas", "Hortaleza", "Barajas", "Ciudad Lineal", "Moratalaz", "San Blas - Canillejas", "Vicálvaro"]
+forums.each_with_index do |forum, i|
+  user = create_user("user_for_forum#{i+1}@example.es")
+  Forum.create(name: forum, user: user)
+end
+
+puts "Open plenary debate"
+open_plenary = Debate.create!(author: User.reorder("RANDOM()").first,
+                        title: "Pregunta en el Pleno Abierto",
+                        created_at: Date.parse("20-04-2016"),
+                        description: "<p>Pleno Abierto preguntas</p>",
+                        terms_of_service: "1",
+                        tag_list: 'plenoabierto',
+                        comment_kind: 'question')
+puts "#{open_plenary.title}"
+
+puts "Open plenary questions"
+(1..30).each do |i|
+  author = User.reorder("RANDOM()").first
+  cached_votes_up = rand(1000)
+  cached_votes_down = rand(1000)
+  cached_votes_total =  cached_votes_up + cached_votes_down
+  Comment.create!(user: author,
+                  created_at: rand(open_plenary.created_at .. Time.now),
+                  commentable: open_plenary,
+                  body: Faker::Lorem.sentence,
+                  cached_votes_up: cached_votes_up,
+                  cached_votes_down: cached_votes_down,
+                  cached_votes_total: cached_votes_total)
+end
+
+puts "Open plenary proposal"
+(1..30).each do |i|
+  description = "<p>#{Faker::Lorem.paragraphs.join('</p><p>')}</p>"
+  proposal = Proposal.create!(author: User.reorder("RANDOM()").first,
+                              title: Faker::Lorem.sentence(3).truncate(60),
+                              question: Faker::Lorem.sentence(3),
+                              summary: Faker::Lorem.sentence(3),
+                              responsible_name: Faker::Name.name,
+                              description: description,
+                              created_at: Date.parse("20-04-2016"),
+                              terms_of_service: "1",
+                              tag_list: 'plenoabierto',
+                              cached_votes_up: rand(1000))
+  puts "#{proposal.title}"
+end
+
+puts "Creating banners"
+
+Proposal.last(3).each do |proposal|
+  title = Faker::Lorem.sentence(word_count = 3)
+  description = Faker::Lorem.sentence(word_count = 12)
+  banner = Banner.create!(title: title,
+                          description: description,
+                          style: ["banner-style banner-style-one", "banner-style banner-style-two",
+                                  "banner-style banner-style-three"].sample,
+                          image: ["banner-img banner-img-one", "banner-img banner-img-two",
+                                  "banner-img banner-img-three"].sample,
+                          target_url: Rails.application.routes.url_helpers.proposal_path(proposal),
+                          post_started_at: rand((Time.now - 1.week) .. (Time.now - 1.day)),
+                          post_ended_at:   rand((Time.now  - 1.day) .. (Time.now + 1.week)),
+                          created_at: rand((Time.now - 1.week) .. Time.now))
+  puts "    #{banner.title}"
+end

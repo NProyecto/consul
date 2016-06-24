@@ -1,6 +1,6 @@
 <% provide :title do %><%= t('pages.titles.more_information') %><% end %>
 <div class="row">
-  <div class="more-information small-12 medium-7 column">
+  <div class="more-information small-12 medium-9 large-7 column">
     <h1><%= t('pages.titles.more_information') %></h1>
     <ul class="no-bullet">
       <li>
@@ -43,6 +43,13 @@
           <%= t('pages.more_information.titles.meetings') %>
           <br>
           <span><%= t('pages.more_information.description.meetings') %></span>
+      <% end %>
+      </li>
+      <li>
+      <%= link_to page_path('human_rights_info') do %>
+          <%= t('pages.more_information.titles.human_rights_info') %>
+          <br>
+          <span><%= t('pages.more_information.description.human_rights_info') %></span>
       <% end %>
       </li>
       <li>
