@@ -508,6 +508,24 @@ feature 'Admin spending proposals' do
       end
     end
 
+    scenario "Mark as incompatible" do
+      Setting['feature.spending_proposal_features.valuation_allowed'] = false
+
+      spending_proposal = create(:spending_proposal, compatible: true)
+
+      visit admin_spending_proposal_path(spending_proposal)
+      click_link 'Edit'
+
+      uncheck 'spending_proposal_compatible'
+      click_button 'Update'
+
+      expect(page).to have_content "Investment project updated succesfully."
+
+      within("#compatibility") do
+        expect(page).to have_content "Incompatible"
+      end
+    end
+
     scenario "Errors on update" do
       spending_proposal = create(:spending_proposal)
       create(:geozone, name: "Barbate")
@@ -806,6 +824,10 @@ feature 'Admin spending proposals' do
           expect(page).to_not have_content @proposal6.title
           expect(page).to_not have_content @proposal7.title
 
+          within("#spending_proposal_#{@proposal1.id}") { expect(page).to have_content "20" }
+          within("#spending_proposal_#{@proposal2.id}") { expect(page).to have_content "60" }
+          within("#spending_proposal_#{@proposal3.id}") { expect(page).to have_content "40" }
+
           expect(@proposal2.title).to appear_before(@proposal3.title)
           expect(@proposal3.title).to appear_before(@proposal1.title)
         end
@@ -826,6 +848,61 @@ feature 'Admin spending proposals' do
           expect(@proposal5.title).to appear_before(@proposal4.title)
           expect(@proposal4.title).to appear_before(@proposal6.title)
         end
+      end
+
+      context "Compatible spending proposals" do
+
+        scenario "Include compatible spending proposals in results" do
+          compatible_proposal1 = create(:spending_proposal, :finished, :feasible, price: 10, compatible: true)
+          compatible_proposal2 = create(:spending_proposal, :finished, :feasible, price: 10, compatible: true)
+
+          incompatible_proposal = create(:spending_proposal, :finished, :feasible, price: 10, compatible: false)
+
+          visit results_admin_spending_proposals_path(geozone_id: nil)
+
+          within("#spending-proposals-results") do
+            expect(page).to have_content compatible_proposal1.title
+            expect(page).to have_content compatible_proposal2.title
+
+            expect(page).to_not have_content incompatible_proposal.title
+          end
+        end
+
+        scenario "Display incompatible spending proposals after results" do
+          incompatible_proposal1  = create(:spending_proposal, :finished, :feasible, price: 10, compatible: false)
+          incompatible_proposal2 = create(:spending_proposal, :finished, :feasible, price: 10, compatible: false)
+
+          compatible_proposal = create(:spending_proposal, :finished, :feasible, price: 10, compatible: true)
+
+          visit results_admin_spending_proposals_path(geozone_id: nil)
+
+          within("#incompatible-spending-proposals") do
+            expect(page).to have_content incompatible_proposal1.title
+            expect(page).to have_content incompatible_proposal2.title
+
+            expect(page).to_not have_content compatible_proposal.title
+          end
+        end
+
+      end
+
+      scenario "Delegated votes affecting the result" do
+        forum = create(:forum)
+        create_list(:user, 30, :level_two, representative: forum)
+        forum.ballot.spending_proposals << @proposal3
+
+        visit results_admin_spending_proposals_path
+
+        expect(page).to have_content @proposal1.title
+        expect(page).to have_content @proposal2.title
+        expect(page).to have_content @proposal3.title
+
+        within("#spending_proposal_#{@proposal1.id}") { expect(page).to have_content "20" }
+        within("#spending_proposal_#{@proposal2.id}") { expect(page).to have_content "60" }
+        within("#spending_proposal_#{@proposal3.id}") { expect(page).to have_content "70" }
+
+        expect(@proposal3.title).to appear_before(@proposal2.title)
+        expect(@proposal2.title).to appear_before(@proposal1.title)
       end
     end
 
@@ -872,6 +949,69 @@ feature 'Admin spending proposals' do
         expect(page).to_not have_css("#spending_proposal_#{proposal2.id}.success")
         expect(page).to_not have_css("#spending_proposal_#{proposal3.id}.success")
         expect(page).to_not have_css("#spending_proposal_#{proposal5.id}.success")
+      end
+    end
+
+    scenario "Display winner emails" do
+      centro = create(:geozone, name: "Centro") #budget: 1353966
+
+      proposal1 = create(:spending_proposal, :finished, :feasible, price: 1000000, ballot_lines_count: 999, geozone: centro)
+      proposal2 = create(:spending_proposal, :finished, :feasible, price:  900000, ballot_lines_count: 888, geozone: centro)
+      proposal3 = create(:spending_proposal, :finished, :feasible, price:  700000, ballot_lines_count: 777, geozone: centro)
+      proposal4 = create(:spending_proposal, :finished, :feasible, price:  350000, ballot_lines_count: 666, geozone: centro)
+      proposal5 = create(:spending_proposal, :finished, :feasible, price:  320000, ballot_lines_count: 666, geozone: centro)
+      proposal6 = create(:spending_proposal, :finished, :feasible, price:      10, ballot_lines_count: 555, geozone: centro)
+
+      visit results_admin_spending_proposals_path(geozone_id: centro.id)
+
+      within("#spending-proposals-winners") do
+        expect(page).to have_content(proposal1.author.email)
+        expect(page).to have_content(proposal4.author.email)
+        expect(page).to have_content(proposal6.author.email)
+
+        expect(page).to_not have_content(proposal2.author.email)
+        expect(page).to_not have_content(proposal3.author.email)
+        expect(page).to_not have_content(proposal5.author.email)
+      end
+    end
+
+    scenario "Display winner contact information" do
+      centro = create(:geozone, name: "Centro") #budget: 1353966
+
+      user1 = create(:user, confirmed_phone: "12345678")
+      user2 = create(:user, confirmed_phone: "22345678")
+      user3 = create(:user, confirmed_phone: "32345678")
+      user4 = create(:user, confirmed_phone: "42345678")
+      user5 = create(:user, confirmed_phone: "52345678")
+      user6 = create(:user, confirmed_phone: "62345678")
+
+      proposal1 = create(:spending_proposal, :finished, :feasible, author: user1, price: 1000000, ballot_lines_count: 999, geozone: centro)
+      proposal2 = create(:spending_proposal, :finished, :feasible, author: user2, price:  900000, ballot_lines_count: 888, geozone: centro)
+      proposal3 = create(:spending_proposal, :finished, :feasible, author: user3, price:  700000, ballot_lines_count: 777, geozone: centro)
+      proposal4 = create(:spending_proposal, :finished, :feasible, author: user4, price:  350000, ballot_lines_count: 666, geozone: centro)
+      proposal5 = create(:spending_proposal, :finished, :feasible, author: user5, price:  320000, ballot_lines_count: 666, geozone: centro)
+      proposal6 = create(:spending_proposal, :finished, :feasible, author: user6, price:      10, ballot_lines_count: 555, geozone: centro)
+
+      visit results_admin_spending_proposals_path(geozone_id: centro.id)
+
+      within("#spending-proposals-results") do
+        expect(page).to have_content(proposal1.author.confirmed_phone)
+        expect(page).to have_content(proposal4.author.confirmed_phone)
+        expect(page).to have_content(proposal6.author.confirmed_phone)
+
+        expect(page).to_not have_content(proposal2.author.confirmed_phone)
+        expect(page).to_not have_content(proposal3.author.confirmed_phone)
+        expect(page).to_not have_content(proposal5.author.confirmed_phone)
+      end
+
+      within("#spending-proposals-results") do
+        expect(page).to have_link proposal1.author.name, href: admin_user_path(proposal1.author)
+        expect(page).to have_link proposal4.author.name, href: admin_user_path(proposal4.author)
+        expect(page).to have_link proposal6.author.name, href: admin_user_path(proposal6.author)
+
+        expect(page).to_not have_link proposal2.author.name
+        expect(page).to_not have_link proposal3.author.name
+        expect(page).to_not have_link proposal5.author.name
       end
     end
   end

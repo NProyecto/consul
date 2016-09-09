@@ -31,6 +31,7 @@ Setting.create(key: 'feature.spending_proposal_features.phase2', value: nil)
 Setting.create(key: 'feature.spending_proposal_features.phase3', value: nil)
 Setting.create(key: 'feature.spending_proposal_features.voting_allowed', value: "true")
 Setting.create(key: 'feature.spending_proposal_features.final_voting_allowed', value: "true")
+Setting.create(key: 'feature.spending_proposal_features.open_results_page', value: nil)
 Setting.create(key: 'feature.twitter_login', value: "true")
 Setting.create(key: 'feature.facebook_login', value: "true")
 Setting.create(key: 'feature.google_login', value: "true")
@@ -50,7 +51,7 @@ geozones = [
   ["Arganzuela", "184,342,218,351,238,373,214,390,183,348"],
   ["Usera", "178,412,201,371,222,420"],
   ["Villaverde", "177,415,225,424,245,470,183,478,168,451"],
-  ["Chamartin", "231,247,224,303,237,309,257,300,246,241"],
+  ["Chamartín", "231,247,224,303,237,309,257,300,246,241"],
   ["Salamanca", "223,306,235,310,256,301,258,335,219,332"],
   ["Retiro", "218,334,259,338,240,369,216,350"],
   ["Puente de Vallecas", "214,390,250,356,265,362,271,372,295,384,291,397,256,406,243,420,223,422"],
@@ -71,27 +72,27 @@ puts "Creating Users"
 def create_user(email, username = Faker::Name.name)
   pwd = '12345678'
   puts "    #{username}"
-  User.create!(username: username, email: email, password: pwd, password_confirmation: pwd, confirmed_at: Time.now, terms_of_service: "1")
+  User.create!(username: username, email: email, password: pwd, password_confirmation: pwd, confirmed_at: Time.now, date_of_birth: (16..100).to_a.sample.years.ago, terms_of_service: "1")
 end
 
-admin = create_user('admin@madrid.es', 'admin')
+admin = create_user('admin@consul.dev', 'admin')
 admin.create_administrator
 
-moderator = create_user('mod@madrid.es', 'mod')
+moderator = create_user('mod@consul.dev', 'mod')
 moderator.create_moderator
 
-valuator = create_user('valuator@madrid.es', 'valuator')
+valuator = create_user('valuator@consul.dev', 'valuator')
 valuator.create_valuator
 
-level_2 = create_user('leveltwo@madrid.es', 'level 2')
+level_2 = create_user('leveltwo@consul.dev', 'level 2')
 level_2.update(residence_verified_at: Time.now, confirmed_phone: Faker::PhoneNumber.phone_number, document_number: "2222222222", document_type: "1" )
 
-verified = create_user('verified@madrid.es', 'verified')
+verified = create_user('verified@consul.dev', 'verified')
 verified.update(residence_verified_at: Time.now, confirmed_phone: Faker::PhoneNumber.phone_number, document_type: "1", verified_at: Time.now, document_number: "3333333333")
 
 (1..10).each do |i|
   org_name = Faker::Company.name
-  org_user = create_user("org#{i}@madrid.es", org_name)
+  org_user = create_user("org#{i}@consul.dev", org_name)
   org_responsible_name = Faker::Name.name
   org = org_user.create_organization(name: org_name, responsible_name: org_responsible_name)
 
@@ -104,12 +105,12 @@ verified.update(residence_verified_at: Time.now, confirmed_phone: Faker::PhoneNu
 end
 
 (1..5).each do |i|
-  official = create_user("official#{i}@madrid.es")
+  official = create_user("official#{i}@consul.dev")
   official.update(official_level: i, official_position: "Official position #{i}")
 end
 
 (1..40).each do |i|
-  user = create_user("user#{i}@madrid.es")
+  user = create_user("user#{i}@consul.dev")
   level = [1,2,3].sample
   if level >= 2 then
     user.update(residence_verified_at: Time.now, confirmed_phone: Faker::PhoneNumber.phone_number, document_number: Faker::Number.number(10), document_type: "1" )
@@ -350,7 +351,7 @@ Debate.only_hidden.flagged.reorder("RANDOM()").limit(5).each(&:confirm_hide)
 Proposal.only_hidden.flagged.reorder("RANDOM()").limit(5).each(&:confirm_hide)
 
 puts "Creating district Forums"
-forums = ["Fuencarral - El Pardo", "Moncloa - Aravaca", "Tetuán", "Chamberí", "Centro", "Latina", "Carabanchel", "Arganzuela", "Usera", "Villaverde", "Chamartin", "Salamanca", "Retiro", "Puente de Vallecas", "Villa de Vallecas", "Hortaleza", "Barajas", "Ciudad Lineal", "Moratalaz", "San Blas - Canillejas", "Vicálvaro"]
+forums = ["Fuencarral - El Pardo", "Moncloa - Aravaca", "Tetuán", "Chamberí", "Centro", "Latina", "Carabanchel", "Arganzuela", "Usera", "Villaverde", "Chamartín", "Salamanca", "Retiro", "Puente de Vallecas", "Villa de Vallecas", "Hortaleza", "Barajas", "Ciudad Lineal", "Moratalaz", "San Blas - Canillejas", "Vicálvaro"]
 forums.each_with_index do |forum, i|
   user = create_user("user_for_forum#{i+1}@example.es")
   Forum.create(name: forum, user: user)
@@ -413,4 +414,24 @@ Proposal.last(3).each do |proposal|
                           post_ended_at:   rand((Time.now  - 1.day) .. (Time.now + 1.week)),
                           created_at: rand((Time.now - 1.week) .. Time.now))
   puts "    #{banner.title}"
+end
+
+puts "Creating Benches for Town Planning project"
+
+benches = [
+["Balle Malle Hupe und Artur", "003"],
+["Delta", "022"],
+["Mas Madrid", "025"],
+["MADBENCH", "033"],
+["Yo tenía tres sillas en mi casa...", "036"],
+["Sedere", "040"],
+["TAKETE", "048"],
+["Mucho gusto Madrid", "054"],
+["SIENTAMADRID!", "084"],
+["ARCO", "130"],
+["a_park_ando", "149"],
+["Benditas costumbres", "174"]]
+
+benches.each do |name, code|
+  Bench.create(name: name, code: code)
 end

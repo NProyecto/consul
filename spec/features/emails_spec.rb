@@ -11,7 +11,7 @@ feature 'Emails' do
 
     email = open_last_email
     expect(email).to have_subject('Confirmation instructions')
-    expect(email).to deliver_to('manuela@madrid.es')
+    expect(email).to deliver_to('manuela@consul.dev')
     expect(email).to have_body_text(user_confirmation_path)
   end
 
@@ -20,7 +20,7 @@ feature 'Emails' do
 
     email = open_last_email
     expect(email).to have_subject('Instructions for resetting your password')
-    expect(email).to deliver_to('manuela@madrid.es')
+    expect(email).to deliver_to('manuela@consul.dev')
     expect(email).to have_body_text(edit_user_password_path)
   end
 
@@ -118,7 +118,7 @@ feature 'Emails' do
 
     email = open_last_email
     expect(email).to have_subject('Confirmation instructions')
-    expect(email).to deliver_to('manuela@madrid.es')
+    expect(email).to deliver_to('manuela@consul.dev')
     expect(email).to have_body_text(user_confirmation_path)
   end
 
@@ -201,8 +201,9 @@ feature 'Emails' do
       notification2 = create_proposal_notification(proposal2)
       notification3 = create_proposal_notification(proposal3)
 
-      email_digest = EmailDigest.new
-      email_digest.create
+      email_digest = EmailDigest.new(user)
+      email_digest.deliver
+      email_digest.mark_as_emailed
 
       email = open_last_email
       expect(email).to have_subject("Proposal notifications in Decide Madrid")
@@ -227,6 +228,36 @@ feature 'Emails' do
 
       expect(email).to_not have_body_text(proposal3.title)
       expect(email).to have_body_text(/#{account_path}/)
+
+      notification1.reload
+      notification2.reload
+      expect(notification1.emailed_at).to be
+      expect(notification2.emailed_at).to be
+    end
+
+    xscenario "Delete all Notifications included in the digest after email sent" do
+    end
+
+  end
+
+  context "User invites" do
+
+    scenario "Send an invitation" do
+      login_as_manager
+      visit new_management_user_invite_path
+
+      fill_in "emails", with: " john@example.com, ana@example.com,isable@example.com "
+      click_button "Send invites"
+
+      expect(page).to have_content "3 invitations have been sent."
+
+      expect(unread_emails_for("john@example.com").count).to eq 1
+      expect(unread_emails_for("ana@example.com").count).to eq 1
+      expect(unread_emails_for("isable@example.com").count).to eq 1
+
+      email = open_last_email
+      expect(email).to have_subject("Invitation to Decide Madrid")
+      expect(email).to have_body_text(/#{new_user_registration_path}/)
     end
 
   end

@@ -137,19 +137,38 @@ feature 'Stats' do
 
   context "graphs" do
 
-    scenario "custom graphs", :js do
-      spending_proposal = create(:spending_proposal)
+    context "custom graphs" do
 
-      visit admin_stats_path
+      scenario "spending proposals", :js do
+        spending_proposal = create(:spending_proposal)
 
-      within("#stats") do
-        click_link "Investment projects"
+        visit admin_stats_path
+
+        within("#stats") do
+          click_link "Investment projects"
+        end
+
+        expect(page).to have_content "Investment projects (1)"
+        within("#graph") do
+          expect(page).to have_content spending_proposal.created_at.strftime("%Y-%m-%d")
+        end
       end
 
-      expect(page).to have_content "Investment projects (1)"
-      within("#graph") do
-        expect(page).to have_content spending_proposal.created_at.strftime("%Y-%m-%d")
+      scenario "Unverified users", :js do
+        user = create(:user)
+
+        visit admin_stats_path
+
+        within("#stats") do
+          click_link "Unverified users"
+        end
+
+        expect(page).to have_content "Unverified users (2)" #including seed admin
+        within("#graph") do
+          expect(page).to have_content user.created_at.strftime("%Y-%m-%d")
+        end
       end
+
     end
 
     scenario "event graphs", :js do
@@ -205,6 +224,20 @@ feature 'Stats' do
       end
     end
 
+    scenario "Deleted proposals" do
+      proposal_notification = create(:proposal_notification)
+      proposal_notification.proposal.destroy
+
+      visit admin_stats_path
+      click_link "Proposal notifications"
+
+      expect(page).to have_css(".proposal_notification", count: 1)
+
+      expect(page).to have_content proposal_notification.title
+      expect(page).to have_content proposal_notification.body
+      expect(page).to have_content "Proposal not available"
+    end
+
   end
 
   context "Direct messages" do
@@ -255,6 +288,85 @@ feature 'Stats' do
 
       within("#redeemable_codes_after_campaign_count") do
         expect(page).to have_content "2"
+      end
+    end
+
+  end
+
+  context "User invites" do
+
+    background do
+      create(:campaign, track_id: 172943750183759812)
+    end
+
+    scenario "Invitations sent" do
+      login_as_manager
+      visit new_management_user_invite_path
+
+      fill_in "emails", with: "john@example.com, ana@example.com, isable@example.com"
+      click_button "Send invites"
+
+      expect(page).to have_content "3 invitations have been sent."
+
+      admin = create(:administrator)
+      login_as(admin.user)
+
+      visit admin_stats_path
+      click_link "Invitations"
+
+      within("#total") do
+        expect(page).to have_content "3"
+      end
+    end
+
+    scenario "Clicks on registration button" do
+      login_as_manager
+      send_user_invite
+      logout(:user)
+
+      email = open_last_email
+      visit_in_email "Complete registration"
+
+      expect(current_url).to include(new_user_registration_path)
+      click_button "Register"
+
+      admin = create(:administrator)
+      login_as(admin.user)
+
+      visit admin_stats_path
+      click_link "Invitations"
+
+      within("#clicked_email_link") do
+        expect(page).to have_content "1"
+      end
+
+      within("#clicked_signup_button") do
+        expect(page).to have_content "1"
+      end
+    end
+
+    scenario "Does not click on registration button" do
+      login_as_manager
+      send_user_invite
+      logout(:user)
+
+      email = open_last_email
+      visit_in_email "Complete registration"
+
+      expect(current_url).to include(new_user_registration_path)
+
+      admin = create(:administrator)
+      login_as(admin.user)
+
+      visit admin_stats_path
+      click_link "Invitations"
+
+      within("#clicked_email_link") do
+        expect(page).to have_content "1"
+      end
+
+      within("#clicked_signup_button") do
+        expect(page).to have_content "0"
       end
     end
 

@@ -244,6 +244,10 @@ es:
         assigned_valuators: Evaluadores asignados
         back: Volver
         classification: Clasificación
+        compatibility_title: Compatibilidad
+        compatibility:
+          "true": "Compatible"
+          "false": "Incompatible"
         heading: Propuesta de inversión %{id}
         edit: Editar
         edit_classification: Editar clasificación
@@ -262,6 +266,7 @@ es:
         tags: Etiquetas
         tags_placeholder: "Escribe las etiquetas que desees separadas por comas (,)"
         undefined: Sin definir
+        compatibility: Compatibilidad
       results:
         title: Ranking actual de propuestas - Votaciones finales
         spending_proposal: Título
@@ -270,6 +275,7 @@ es:
         show_all_link: Mostrar todas
         price: Coste
         amount_available: Presupuesto disponible
+        incompatible: Incompatibles
       summary:
         title: Resumen de propuestas de inversión
         geozone_name: Ámbito de ciudad
@@ -286,6 +292,8 @@ es:
         direct_messages: Mensajes directos
         proposal_notifications: Notificaciones de propuestas
         redeemable_codes: Códigos enviados por carta
+        user_invites: Invitaciones Linea Madrid
+        benches: Urbanismo bancos
         summary:
           ballot_line_votes: Votos en inversión
           ballot_votes: Presupuestos votados
@@ -313,6 +321,7 @@ es:
         proposal_created: Propuestas Ciudadanas
         participatory_budget: Presupuestos Participativos
         user_voted_budgets: Usuarios que han votado
+        unverified_users: Usuarios sin verificar
       spending_proposals:
         title: Presupuestos participativos
         districts: Distrito
@@ -330,10 +339,20 @@ es:
         title: Notificaciones de propuestas
         total: Total
         proposals_with_notifications: Propuestas con notificaciones
+        not_available: Esta propuesta ya no está disponible
       reedemable_codes:
         title: Códigos enviados por carta
         total: Total
         campaign: Después de las 400.000 cartas
+      user_invites:
+        title: Invitaciones Linea Madrid
+        total: Total
+        clicked_email_link: Link del email clickado
+        clicked_signup_button: Botón de registrarse clickado
+      benches:
+        title: "Urbanismo: nuevos bancos"
+        name: Banco
+        votes: Votos
     tags:
       create: Crear Tema
       destroy: Eliminar Tema
@@ -354,6 +373,7 @@ es:
         title: Usuarios bloqueados
       show:
         email: 'Email:'
+        phone: Teléfono
         hidden_at: 'Bloqueado:'
         registered_at: 'Fecha de alta:'
         title: Actividad del usuario (%{user})

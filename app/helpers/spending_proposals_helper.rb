@@ -80,11 +80,8 @@ module SpendingProposalsHelper
   end
 
   def spending_proposal_votable_in_show?(spending_proposal)
-    if feature?("spending_proposal_features.phase3")
-      spending_proposal.feasibility == 'feasible'
-    else
-      spending_proposal.feasibility != 'not_feasible'
-    end
+    (feature?("spending_proposal_features.phase2") && spending_proposal.feasibility != 'not_feasible') ||
+    (feature?("spending_proposal_features.phase3") && spending_proposal.feasibility == 'feasible')
   end
 
   def spending_proposal_ids
@@ -92,7 +89,11 @@ module SpendingProposalsHelper
   end
 
   def display_budget_countdown?
-    Date.new(2016,7,1).beginning_of_day >= Time.now.in_time_zone
+    setting["feature.spending_proposal_features.final_voting_allowed"].present?
+  end
+
+  def css_for_highlight_spending_proposal_stat(phase)
+    phase == "all" ? "success" : ""
   end
 
 end

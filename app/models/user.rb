@@ -58,6 +58,7 @@ class User < ActiveRecord::Base
   scope :for_render,     -> { includes(:organization) }
   scope :by_document,    -> (document_type, document_number) { where(document_type: document_type, document_number: document_number) }
   scope :email_digest,   -> { where(email_digest: true) }
+  scope :active,         -> { where(erased_at: nil) }
 
   before_validation :clean_document_number
 
@@ -81,6 +82,10 @@ class User < ActiveRecord::Base
     organization? ? organization.name : username
   end
 
+  def phone
+    confirmed_phone || phone_number
+  end
+
   def debate_votes(debates)
     voted = votes.for_debates(debates)
     voted.each_with_object({}) { |v, h| h[v.votable_id] = v.value }
@@ -99,6 +104,10 @@ class User < ActiveRecord::Base
   def comment_flags(comments)
     comment_flags = flags.for_comments(comments)
     comment_flags.each_with_object({}){ |f, h| h[f.flaggable_id] = true }
+  end
+
+  def voted_for_any?(class_name)
+    votes.for_type(class_name).any?
   end
 
   def administrator?

@@ -1,6 +1,6 @@
 module CommonActions
 
-  def sign_up(email='manuela@madrid.es', password='judgementday')
+  def sign_up(email='manuela@consul.dev', password='judgementday')
     visit '/'
 
     click_link 'Register'
@@ -68,13 +68,13 @@ module CommonActions
   end
 
   def reset_password
-    create(:user, email: 'manuela@madrid.es')
+    create(:user, email: 'manuela@consul.dev')
 
     visit '/'
     click_link 'Sign in'
     click_link 'Forgotten your password?'
 
-    fill_in 'user_email', with: 'manuela@madrid.es'
+    fill_in 'user_email', with: 'manuela@consul.dev'
     click_button 'Send instructions'
   end
 
@@ -286,6 +286,50 @@ module CommonActions
       expect(page).to_not have_css ".label.round"
       expect(page).to_not have_content "Employee"
     end
+  end
+
+  def create_spending_proposal_for(*users)
+    users.each do |user|
+      create(:spending_proposal, :finished, :feasible, author: user)
+    end
+  end
+
+  def create_vote_for(*users)
+    sp = first_or_create_spending_spending_proposal
+    users.each do |user|
+      create(:vote, votable: sp, voter: user)
+    end
+  end
+
+  def create_ballot_for(*users)
+    sp = first_or_create_spending_spending_proposal
+    users.each do |user|
+      create(:ballot, spending_proposals: [sp], user: user)
+    end
+  end
+
+  def create_delegation_for(*users)
+    forum = create(:forum)
+    users.each do |user|
+      user.update(representative: forum)
+    end
+  end
+
+  def first_or_create_spending_spending_proposal
+    if SpendingProposal.any?
+      return SpendingProposal.first
+    else
+      return create(:spending_proposal, :finished, :feasible)
+    end
+  end
+
+  def send_user_invite
+    visit new_management_user_invite_path
+
+    fill_in "emails", with: "john@example.com, ana@example.com, isable@example.com"
+    click_button "Send invites"
+
+    expect(page).to have_content "3 invitations have been sent."
   end
 
 end

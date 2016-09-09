@@ -75,13 +75,15 @@ Rails.application.routes.draw do
   scope '/participatory_budget' do
     resources :spending_proposals, only: [:index, :show, :destroy], path: 'investment_projects' do #[:new, :create] temporary disabled
       get :welcome, on: :collection
+      get :stats, on: :collection
       post :vote, on: :member
     end
 
     resource :ballot, only: [:show] do
       resources :ballot_lines, only: [:create, :destroy], shallow: true
     end
-    get '/ballot/ballot_lines/create', to: 'ballot_lines#create', as: :create_ballot_line
+    get '/ballot/ballot_lines/create', to: 'ballot_lines#create', as: :create_ballot_line,
+    constraints: lambda { |request| Setting["feature.spending_proposal_features.final_voting_allowed"].present? }
   end
 
   resources :open_plenaries, only: [] do
@@ -207,6 +209,8 @@ Rails.application.routes.draw do
       get :proposal_notifications, on: :collection
       get :direct_messages, on: :collection
       get :redeemable_codes, on: :collection
+      get :user_invites, on: :collection
+      get :benches, on: :collection
     end
 
     namespace :api do
@@ -257,6 +261,8 @@ Rails.application.routes.draw do
 
     resources :email_verifications, only: [:new, :create]
 
+    resources :user_invites, only: [:new, :create]
+
     resources :users, only: [:new, :create] do
       collection do
         delete :logout
@@ -284,6 +290,8 @@ Rails.application.routes.draw do
   resources :forums, only: [:index, :create, :show]
   resources :representatives, only: [:create, :destroy]
 
+  resources :benches, only: [:index]
+
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
@@ -297,11 +305,16 @@ Rails.application.routes.draw do
   get 'delegacion', to: 'forums#index', as: 'delegation'
   get 'plenoabierto', to: 'pages#show', id: 'processes_open_plenary'
   get 'derechos-humanos', to: 'pages#show', id: 'processes/human_rights'
+  get 'processes', to: 'pages#show', id: 'processes', as: 'processes'
   get 'processes/human_rights_question_1', to: 'pages#show', id: 'processes/human_rights_question_1'
   get 'processes/human_rights_question_2', to: 'pages#show', id: 'processes/human_rights_question_2'
   get 'processes/human_rights_question_3', to: 'pages#show', id: 'processes/human_rights_question_3'
+  get 'processes/urbanismo-bancos', to: 'benches#index', as: 'town_planning'
+  get 'processes/urbanismo-bancos-gracias', to: 'benches#thanks', as: 'town_planning_thanks'
   get 'noticias', to: 'pages#show', id: 'news'
   get 'participatory_budget/in_two_minutes', to: 'pages#show', id: 'participatory_budget/in_two_minutes'
+  get 'presupuestos-participativos-resultados', to: 'spending_proposals#results', as: 'participatory_budget_results'
+  get 'presupuestos-participativos-estadisticas', to: 'spending_proposals#stats', as: 'participatory_budget_stats'
 
   resources :pages, path: '/', only: [:show]
 end
